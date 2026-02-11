@@ -952,16 +952,37 @@ body {
 .stats-grid {
     display: flex;
     flex-direction: column;
+    gap: 16px;
+}
+
+.stats-section {
+    display: flex;
+    flex-direction: column;
     gap: 4px;
+}
+
+.stats-section-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0 0 4px 4px;
 }
 
 .stat-row {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     padding: 8px 12px;
     background: var(--bg-card);
     border-radius: var(--radius-sm);
     font-size: 13px;
+    transition: background 0.15s ease;
+}
+
+.stat-row:hover {
+    background: var(--bg-card-hover);
 }
 
 .stat-row span:first-child {
@@ -971,6 +992,7 @@ body {
 .stat-row span:last-child {
     font-weight: 600;
     color: var(--text-primary);
+    font-variant-numeric: tabular-nums;
 }
 
 /* Settings */

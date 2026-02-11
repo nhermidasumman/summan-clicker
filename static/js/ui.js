@@ -136,23 +136,69 @@ const UI = (() => {
     function showStatsModal() {
         const state = Game.getState();
         const stats = state.stats;
+        const totalBuildings = Object.values(state.buildings).reduce((a, b) => a + b, 0);
+        const achievementCount = state.achievements ? state.achievements.length : 0;
+        const clickVal = Game.calculateClickValue();
+        const elapsedSec = (Date.now() - (state.gameStartTime || stats.startDate || Date.now())) / 1000;
+
         const html = `
             <div class="stats-grid">
-                <div class="stat-row">
-                    <span>📊 ${Lang.t('stat_total_data')}</span>
-                    <span>${Utils.formatNumber(stats.totalDataEarned)}</span>
+                <div class="stats-section">
+                    <h3 class="stats-section-title">💰 ${Lang.t('production')}</h3>
+                    <div class="stat-row">
+                        <span>📊 ${Lang.t('total_data')}</span>
+                        <span>${Utils.formatNumber(stats.totalDataEarned)}</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>📈 ${Lang.t('data_per_second')}</span>
+                        <span>${Utils.formatDps(state.dps)}/s</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>🖱️ ${Lang.t('data_per_click')}</span>
+                        <span>${Utils.formatDps(clickVal)}</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>⚡ ${Lang.t('highest_dps')}</span>
+                        <span>${Utils.formatDps(stats.highestDps || 0)}/s</span>
+                    </div>
                 </div>
-                <div class="stat-row">
-                    <span>👆 ${Lang.t('stat_total_clicks')}</span>
-                    <span>${stats.totalClicks}</span>
+                <div class="stats-section">
+                    <h3 class="stats-section-title">🎮 ${Lang.getLanguage() === 'es' ? 'Actividad' : 'Activity'}</h3>
+                    <div class="stat-row">
+                        <span>👆 ${Lang.t('total_clicks')}</span>
+                        <span>${Utils.formatNumber(stats.totalClicks)}</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>🏗️ ${Lang.t('total_buildings')}</span>
+                        <span>${totalBuildings}</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>⏱️ ${Lang.t('play_time')}</span>
+                        <span>${Utils.formatTime(elapsedSec)}</span>
+                    </div>
                 </div>
-                <div class="stat-row">
-                    <span>⏱️ ${Lang.t('stat_playtime')}</span>
-                    <span>${Utils.formatTime((Date.now() - stats.startDate) / 1000)}</span>
-                </div>
-                <div class="stat-row">
-                    <span>🚀 ${Lang.t('stat_prestiged')}</span>
-                    <span>${stats.timesPrestiged || 0}</span>
+                <div class="stats-section">
+                    <h3 class="stats-section-title">🏆 ${Lang.getLanguage() === 'es' ? 'Progreso' : 'Progress'}</h3>
+                    <div class="stat-row">
+                        <span>🎯 ${Lang.t('achievements_unlocked')}</span>
+                        <span>${achievementCount} / 28</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>🚀 ${Lang.t('times_prestiged')}</span>
+                        <span>${stats.timesPrestiged || 0}</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>💡 ${Lang.t('innovation_earned')}</span>
+                        <span>${state.totalInnovationEarned || 0}</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>✨ ${Lang.getLanguage() === 'es' ? 'Datos dorados recogidos' : 'Golden Data collected'}</span>
+                        <span>${stats.events?.golden_clicked || 0}</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>🐛 ${Lang.getLanguage() === 'es' ? 'Bugs arreglados' : 'Bugs fixed'}</span>
+                        <span>${stats.events?.bug_fixed || 0}</span>
+                    </div>
                 </div>
             </div>
         `;
