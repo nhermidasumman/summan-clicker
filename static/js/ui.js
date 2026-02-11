@@ -2,7 +2,7 @@
    Summan Data Clicker - UI Rendering & Interactions
    ========================================================================== */
 
-const UI = (() => {
+window.UI = (() => {
     // DOM element cache
     let els = {};
     let currentTab = 'buildings';
@@ -210,8 +210,8 @@ const UI = (() => {
             <div class="settings-group">
                 <h3>${Lang.t('language')}</h3>
                 <div class="language-switch">
-                    <button onclick="Game.setLanguage('es')" class="lang-btn ${Lang.getLanguage() === 'es' ? 'active' : ''}">🇪🇸 ES</button>
-                    <button onclick="Game.setLanguage('en')" class="lang-btn ${Lang.getLanguage() === 'en' ? 'active' : ''}">🇺🇸 EN</button>
+                    <button onclick="Game.setLanguage('es'); UI.showSettingsModal()" class="lang-btn ${Lang.getLanguage() === 'es' ? 'active' : ''}">🇪🇸 ES</button>
+                    <button onclick="Game.setLanguage('en'); UI.showSettingsModal()" class="lang-btn ${Lang.getLanguage() === 'en' ? 'active' : ''}">🇺🇸 EN</button>
                 </div>
             </div>
             <div class="settings-group">
@@ -655,6 +655,51 @@ const UI = (() => {
         setTimeout(() => overlay.remove(), 1500);
     }
 
+    function animateClick() {
+        if (!els.clickOrb) return;
+
+        els.clickOrb.classList.add('clicked');
+        setTimeout(() => els.clickOrb.classList.remove('clicked'), 150);
+
+        // Click ripple ring
+        if (els.clickTarget) {
+            const ring = document.createElement('div');
+            ring.className = 'click-ring';
+
+            // Center in the click target area
+            // Since we want it centered on the Orb, and the Orb is centered in Target
+            // We can just append and verify CSS centers it
+            // CSS: .click-ring { transform: translate(-50%, -50%); top: 50%; left: 50%; }
+            // Wait, CSS says: transform: translate(-50%, -50%); 
+            // but position is absolute. We need to set top/left.
+            const rect = els.clickOrb.getBoundingClientRect();
+            const parentRect = els.clickTarget.getBoundingClientRect();
+
+            const x = (rect.left - parentRect.left) + rect.width / 2;
+            const y = (rect.top - parentRect.top) + rect.height / 2;
+
+            ring.style.left = x + 'px';
+            ring.style.top = y + 'px';
+
+            els.clickTarget.appendChild(ring);
+            ring.addEventListener('animationend', () => ring.remove());
+        }
+    }
+
+    function createParticle(x, y, text, color) {
+        Utils.createParticle(x, y, text, color);
+    }
+
+    function showToast(msg, type, duration) {
+        Utils.showToast(msg, type, duration);
+    }
+
+    function showSaveIndicator() {
+        // Simple toast for save
+        const msg = Lang.getLanguage() === 'es' ? '💾 Juego guardado' : '💾 Game saved';
+        Utils.showToast(msg, 'success', 2000);
+    }
+
     function updateAllText() {
         // Update static text elements
         const title = document.getElementById('game-title');
@@ -664,9 +709,14 @@ const UI = (() => {
         if (subtitle) subtitle.textContent = Lang.t('game_subtitle');
 
         // Tab labels
-        if (els.tabBuildings) els.tabBuildings.textContent = Lang.t('buildings');
-        if (els.tabUpgrades) els.tabUpgrades.textContent = Lang.t('upgrades');
-        if (els.tabAchievements) els.tabAchievements.textContent = Lang.t('achievements');
+        // if (els.tabBuildings) els.tabBuildings.textContent = Lang.t('buildings'); // Tabs removed or changed?
+        // Buildings tab might still exist. Upgrades tab was replaced by bar.
+        // Let's just update what we see
+        const bTab = document.getElementById('tab-buildings');
+        if (bTab) bTab.textContent = '🏭 ' + Lang.t('buildings');
+
+        const aTab = document.getElementById('tab-achievements');
+        if (aTab) aTab.textContent = '🏆 ' + Lang.t('achievements');
     }
 
     return {
@@ -679,6 +729,9 @@ const UI = (() => {
         renderPrestige: renderPrestigeButton,
         showModal,
         closeModal,
+        showToast,
+        showSettingsModal,
+        createParticle,
         animateClick,
         showSaveIndicator,
         showAchievement,

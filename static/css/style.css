@@ -1192,6 +1192,43 @@ body {
     gap: 8px;
 }
 
+/* Language Switch */
+.language-switch {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.lang-btn {
+    padding: 10px 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex: 1;
+}
+
+.lang-btn:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--accent);
+    color: var(--text-primary);
+}
+
+.lang-btn.active {
+    background: var(--green);
+    border-color: var(--green);
+    color: #fff;
+    box-shadow: 0 0 10px var(--green-glow);
+}
+
 .settings-btn {
     padding: 10px;
     border: 1px solid var(--border);
