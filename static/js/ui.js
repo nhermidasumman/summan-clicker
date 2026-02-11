@@ -147,6 +147,8 @@ window.UI = (() => {
         const stats = state.stats;
         const totalBuildings = Object.values(state.buildings).reduce((a, b) => a + b, 0);
         const achievementCount = state.achievements ? state.achievements.length : 0;
+        const upgradesBought = state.upgrades ? state.upgrades.length : 0;
+        const upgradesTotal = Upgrades.getAll().length;
         const clickVal = Game.calculateClickValue();
         const elapsedSec = (Date.now() - (state.gameStartTime || stats.startDate || Date.now())) / 1000;
 
@@ -188,6 +190,10 @@ window.UI = (() => {
                 </div>
                 <div class="stats-section">
                     <h3 class="stats-section-title">🏆 ${Lang.getLanguage() === 'es' ? 'Progreso' : 'Progress'}</h3>
+                    <div class="stat-row">
+                        <span>✨ ${Lang.getLanguage() === 'es' ? 'Mejoras compradas' : 'Upgrades purchased'}</span>
+                        <span>${upgradesBought} / ${upgradesTotal}</span>
+                    </div>
                     <div class="stat-row">
                         <span>🎯 ${Lang.t('achievements_unlocked')}</span>
                         <span>${achievementCount} / 28</span>
@@ -510,13 +516,15 @@ window.UI = (() => {
         let html = '';
         for (const up of available) {
             const canAfford = state.dataPoints >= up.cost;
-            const tooltipText = `${Upgrades.getName(up)}: ${Upgrades.getDesc(up)}\n💠 ${Utils.formatNumber(up.cost)}`;
+            // Escape for safe HTML attribute insertion
+            const rawTooltip = `${Upgrades.getName(up)}: ${Upgrades.getDesc(up)} — 💠 ${Utils.formatNumber(up.cost)}`;
+            const safeTooltip = rawTooltip.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
             html += `
                 <div class="upgrade-tile ${canAfford ? 'affordable' : 'locked'}"
                      data-upgrade="${up.id}"
                      onclick="Game.buyUpgrade('${up.id}')"
-                     data-tooltip="${tooltipText}">
+                     data-tooltip="${safeTooltip}">
                     <div class="upgrade-tile-icon">${up.icon}</div>
                     <div class="upgrade-tile-cost">${Utils.formatNumber(up.cost)}</div>
                 </div>
