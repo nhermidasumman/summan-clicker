@@ -227,11 +227,11 @@ const UI = (() => {
         els.dataCounter.textContent = Utils.formatNumber(state.dataPoints);
 
         // Update DPS
-        els.dpsDisplay.textContent = `${Utils.formatNumber(state.dps)} ${Lang.t('per_second')}`;
+        els.dpsDisplay.textContent = `${Utils.formatDps(state.dps)} ${Lang.t('per_second')}`;
 
         // Update click power
         const clickVal = Game.calculateClickValue();
-        els.clickPowerDisplay.textContent = `${Utils.formatNumber(clickVal)} ${Lang.t('click_power')}`;
+        els.clickPowerDisplay.textContent = `${Utils.formatDps(clickVal)} ${Lang.t('click_power')}`;
 
         // Update innovation display
         if (state.totalInnovationEarned > 0 || state.innovationPoints > 0) {
@@ -302,8 +302,8 @@ const UI = (() => {
                         <div class="building-name">${Lang.t(def.nameKey)}</div>
                         <div class="building-desc">${Lang.t(def.descKey)}</div>
                         <div class="building-stats">
-                            <span class="building-dps">⚡ ${Utils.formatNumber(dps)}/s each</span>
-                            <span class="building-total-dps">(${Utils.formatNumber(totalDps)}/s total)</span>
+                            <span class="building-dps">⚡ ${Utils.formatDps(dps)}/s each</span>
+                            <span class="building-total-dps">(${Utils.formatDps(totalDps)}/s total)</span>
                         </div>
                     </div>
                     <div class="building-right">

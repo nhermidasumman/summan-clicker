@@ -27,10 +27,34 @@ const Utils = (() => {
         const scale = Math.pow(10, tier * 3);
         const scaled = num / scale;
 
-        // Even with suffixes, we floor and show as integer (e.g., 1.5K -> 1K or use more precision if needed, 
-        // but user specifically asked for "nothing decimal". So 1500 becomes 1K if we use floor(1.5).
-        // Actually, for incremental games, 1.5K is common, but "nada decimal" is strict.
         return Math.floor(scaled).toString() + suffix;
+    }
+
+    /**
+     * Format a DPS (data per second) value, allowing decimals for precision.
+     * - Values < 1: show 1 decimal (e.g. 0.4)
+     * - Values 1-999: integer if whole, 1 decimal otherwise (e.g. 5, 3.5)
+     * - Values >= 1000: use suffix with 1 decimal (e.g. 1.2K)
+     */
+    function formatDps(num) {
+        if (num === null || num === undefined || isNaN(num)) return '0';
+        if (num < 0) return '-' + formatDps(-num);
+        if (num < 1000) {
+            if (num === 0) return '0';
+            if (num < 1) return num.toFixed(1);
+            if (Number.isInteger(num)) return num.toString();
+            return parseFloat(num.toFixed(1)).toString();
+        }
+
+        const tier = Math.floor(Math.log10(Math.abs(num)) / 3);
+        if (tier === 0) return parseFloat(num.toFixed(1)).toString();
+        if (tier >= SUFFIXES.length) return num.toExponential(1);
+
+        const suffix = SUFFIXES[tier];
+        const scale = Math.pow(10, tier * 3);
+        const scaled = num / scale;
+
+        return parseFloat(scaled.toFixed(1)).toString() + suffix;
     }
 
     /**
@@ -161,6 +185,7 @@ const Utils = (() => {
 
     return {
         formatNumber,
+        formatDps,
         formatTime,
         formatDate,
         calculateBuildingCost,

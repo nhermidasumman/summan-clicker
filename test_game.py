@@ -26,13 +26,9 @@ def test_game_loads(game_page: Page):
     game_page.screenshot(path="game_verify.png")
 
 def test_no_decimals_in_ui(game_page: Page):
-    """Verify that no decimal points are shown in the main UI counters."""
-    # Data counter should not have a dot
+    """Verify that no decimal points are shown in the main data counter."""
+    # Data counter should not have a dot (main counter stays integer)
     expect(game_page.locator("#data-counter")).not_to_have_text(re.compile(r"\."))
-    # DPS display should not have a dot
-    expect(game_page.locator("#dps-display")).not_to_have_text(re.compile(r"\."))
-    # Click power display should not have a dot
-    expect(game_page.locator("#click-power-display")).not_to_have_text(re.compile(r"\."))
 
 def test_clicking_mechanic(game_page: Page):
     """Verify clicking generates data."""

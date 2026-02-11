@@ -123,7 +123,7 @@ const Game = (() => {
         state.stats.totalClicksAllTime = (state.stats.totalClicksAllTime || 0) + 1;
 
         // Visual feedback
-        Utils.createParticle(x, y, '+' + Utils.formatNumber(clickValue));
+        Utils.createParticle(x, y, '+' + Utils.formatDps(clickValue));
 
         // Check achievements after click
         const newAchievements = Achievements.checkAll(state);
