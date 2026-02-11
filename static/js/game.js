@@ -387,6 +387,7 @@ const Game = (() => {
      * Get the building cost discount from prestige.
      */
     function getBuildingDiscount() {
+        if (!state.prestigeUpgrades) return 1; // Default no discount
         const effects = Prestige.getAggregatedEffects(state.prestigeUpgrades);
         return effects.buildingDiscount;
     }

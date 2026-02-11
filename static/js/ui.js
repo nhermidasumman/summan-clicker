@@ -488,25 +488,35 @@ window.UI = (() => {
     // ==================== UPGRADES ====================
 
     function renderUpgrades(state) {
-        const available = Upgrades.getAvailable(state);
-        const bar = document.getElementById('upgrades-bar');
-        let html = '';
+        // Sort by cost ascending
+        const available = Upgrades.getAvailable(state).sort((a, b) => a.cost - b.cost);
+
+        // Target container instead of just bar to hide title too
+        const container = document.getElementById('upgrades-container');
+        // Fallback for old HTML structure if not updated yet (though we just updated it)
+        const bar = document.getElementById('upgrades-bar') || container;
+
+        // Use container if exists, otherwise bar
+        const targetEl = container || bar;
 
         if (available.length === 0) {
-            bar.style.display = 'none';
+            targetEl.style.display = 'none';
             els.upgradesList.innerHTML = '';
             return;
         }
 
-        bar.style.display = 'block';
+        targetEl.style.display = 'block';
 
+        let html = '';
         for (const up of available) {
             const canAfford = state.dataPoints >= up.cost;
+            const tooltipText = `${Upgrades.getName(up)}: ${Upgrades.getDesc(up)}\n💠 ${Utils.formatNumber(up.cost)}`;
+
             html += `
                 <div class="upgrade-tile ${canAfford ? 'affordable' : 'locked'}"
                      data-upgrade="${up.id}"
                      onclick="Game.buyUpgrade('${up.id}')"
-                     title="${Upgrades.getName(up)}: ${Upgrades.getDesc(up)}&#10;💠 ${Utils.formatNumber(up.cost)}">
+                     data-tooltip="${tooltipText}">
                     <div class="upgrade-tile-icon">${up.icon}</div>
                     <div class="upgrade-tile-cost">${Utils.formatNumber(up.cost)}</div>
                 </div>

@@ -1,0 +1,31 @@
+============================= test session starts =============================
+platform win32 -- Python 3.10.0, pytest-9.0.2, pluggy-1.6.0 -- C:\Users\nhermida\AppData\Local\Programs\Python\Python310\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\nhermida\.gemini\antigravity\scratch\summan-clicker
+plugins: anyio-4.12.1, base-url-2.1.0, playwright-0.7.2
+collecting ... collected 1 item
+
+test_buy_modes.py::test_buy_modes_integration[chromium] DEBUG: Buy Amount in State: 10
+DEBUG: x10 test. Owned: 11
+FAILED
+
+================================== FAILURES ===================================
+____________________ test_buy_modes_integration[chromium] _____________________
+test_buy_modes.py:72: in test_buy_modes_integration
+    expect(intern_item).to_have_class(re.compile("affordable"))
+E   AssertionError: Locator expected to have class 're.compile('affordable')'
+E   Actual value: building-item locked 
+E   Call log:
+E     - Expect "to_have_class" with timeout 5000ms
+E     - waiting for locator(".building-item[data-building='intern']")
+E       9 × locator resolved to <div data-building="intern" class="building-item locked" onclick="Game.buyBuilding('intern')">…</div>
+E         - unexpected value "building-item locked"
+=========================== short test summary info ===========================
+FAILED test_buy_modes.py::test_buy_modes_integration[chromium] - AssertionError: Locator expected to have class 're.compile('affordable')'
+Actual value: building-item locked 
+Call log:
+  - Expect "to_have_class" with timeout 5000ms
+  - waiting for locator(".building-item[data-building='intern']")
+    9 × locator resolved to <div data-building="intern" class="building-item locked" onclick="Game.buyBuilding('intern')">…</div>
+      - unexpected value "building-item locked"
+============================== 1 failed in 7.39s ==============================
