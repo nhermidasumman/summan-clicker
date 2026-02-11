@@ -84,9 +84,9 @@ window.UI = (() => {
         els.clickTarget.addEventListener('contextmenu', (e) => e.preventDefault());
 
         // Tabs
-        els.tabBuildings.addEventListener('click', () => switchTab('buildings'));
-        els.tabUpgrades.addEventListener('click', () => switchTab('upgrades'));
-        els.tabAchievements.addEventListener('click', () => switchTab('achievements'));
+        if (els.tabBuildings) els.tabBuildings.addEventListener('click', () => switchTab('buildings'));
+        // Upgrades tab removed
+        if (els.tabAchievements) els.tabAchievements.addEventListener('click', () => switchTab('achievements'));
 
         // Buy amount buttons
         els.buyBtns.forEach(btn => {
