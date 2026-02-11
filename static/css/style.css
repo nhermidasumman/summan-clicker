@@ -367,59 +367,29 @@ body {
     cursor: default;
 }
 
-/* Custom Tooltips for Upgrades */
-[data-tooltip] {
-    position: relative;
-}
-
-[data-tooltip]::before,
-[data-tooltip]::after {
-    display: none;
-    position: absolute;
-    z-index: 1000;
+/* JS-driven Tooltip (appended to body, escapes overflow containers) */
+.upgrade-tooltip {
+    position: fixed;
+    z-index: 10000;
     pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.15s ease 0.1s;
-    /* Short delay 0.1s */
-}
-
-[data-tooltip]:hover::before,
-[data-tooltip]:hover::after {
-    display: block;
-    opacity: 1;
-}
-
-/* Tooltip Body */
-[data-tooltip]::after {
-    content: attr(data-tooltip);
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%) translateY(-8px);
     background: var(--bg-secondary);
     color: var(--text-primary);
     padding: 8px 12px;
     border-radius: var(--radius-sm);
     font-size: 11px;
     font-weight: 500;
-    white-space: pre-wrap;
-    width: max-content;
+    white-space: normal;
     max-width: 220px;
     border: 1px solid var(--border);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
     text-align: center;
     line-height: 1.4;
+    opacity: 0;
+    transition: opacity 0.12s ease;
 }
 
-/* Arrow */
-[data-tooltip]::before {
-    content: '';
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%) translateY(-2px);
-    border: 6px solid transparent;
-    border-top-color: var(--border);
-    margin-bottom: -1px;
-    /* Overlap border */
+.upgrade-tooltip.visible {
+    opacity: 1;
 }
 
 /* Tab Content */

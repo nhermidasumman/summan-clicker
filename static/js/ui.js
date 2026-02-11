@@ -532,6 +532,73 @@ window.UI = (() => {
         }
 
         els.upgradesList.innerHTML = html;
+        bindUpgradeTooltips();
+    }
+
+    // ---- JS Tooltip System (escapes overflow containers) ----
+    let tooltipEl = null;
+    let tooltipTimeout = null;
+
+    function getOrCreateTooltip() {
+        if (!tooltipEl) {
+            tooltipEl = document.createElement('div');
+            tooltipEl.className = 'upgrade-tooltip';
+            document.body.appendChild(tooltipEl);
+        }
+        return tooltipEl;
+    }
+
+    function showTooltipFor(tile) {
+        const text = tile.getAttribute('data-tooltip');
+        if (!text) return;
+
+        const tip = getOrCreateTooltip();
+        tip.textContent = text;
+        tip.classList.add('visible');
+
+        // Position above the tile
+        const rect = tile.getBoundingClientRect();
+        const tipRect = tip.getBoundingClientRect();
+        let left = rect.left + rect.width / 2 - tipRect.width / 2;
+        let top = rect.top - tipRect.height - 8;
+
+        // Clamp to viewport
+        if (left < 4) left = 4;
+        if (left + tipRect.width > window.innerWidth - 4) left = window.innerWidth - tipRect.width - 4;
+        if (top < 4) top = rect.bottom + 8; // Flip below if no room above
+
+        tip.style.left = left + 'px';
+        tip.style.top = top + 'px';
+    }
+
+    function hideTooltip() {
+        clearTimeout(tooltipTimeout);
+        if (tooltipEl) tooltipEl.classList.remove('visible');
+    }
+
+    function bindUpgradeTooltips() {
+        const list = els.upgradesList;
+        if (!list) return;
+
+        // Use event delegation on the list container
+        list.onmouseenter = null;
+        list.onmouseleave = null;
+
+        list.addEventListener('mouseover', (e) => {
+            const tile = e.target.closest('.upgrade-tile');
+            if (!tile) return;
+            clearTimeout(tooltipTimeout);
+            tooltipTimeout = setTimeout(() => showTooltipFor(tile), 100); // 100ms delay
+        });
+
+        list.addEventListener('mouseout', (e) => {
+            const tile = e.target.closest('.upgrade-tile');
+            if (!tile) return;
+            // Check if we're moving to another part of the same tile
+            const related = e.relatedTarget;
+            if (related && tile.contains(related)) return;
+            hideTooltip();
+        });
     }
 
     function updateUpgradeAffordability(state) {
