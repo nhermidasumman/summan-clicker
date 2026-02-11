@@ -42,6 +42,20 @@ def test_upgrade_tooltip_and_stats(page: Page):
         assert "💠" in tooltip or "💠" in tooltip or "amp;" not in tooltip.split("💠")[0] if "💠" in tooltip else True
         print(f"  Tile {i} tooltip OK: {tooltip[:60]}...")
 
+    # ---- HOVER TOOLTIP VISIBILITY ----
+    # Hover over the first tile and check the JS tooltip div appears
+    first_tile = tiles.first
+    first_tooltip_text = first_tile.get_attribute("data-tooltip")
+    first_tile.hover()
+    page.wait_for_timeout(300)  # 100ms delay + render buffer
+
+    tooltip_div = page.locator(".upgrade-tooltip.visible")
+    assert tooltip_div.count() > 0, "JS tooltip div did not appear on hover"
+    actual_text = tooltip_div.text_content()
+    assert first_tooltip_text in actual_text or actual_text in first_tooltip_text, \
+        f"Tooltip text mismatch. Expected: '{first_tooltip_text}', Got: '{actual_text}'"
+    print(f"  ✅ Hover tooltip visible with correct text: {actual_text[:60]}...")
+
     # ---- STATS MODAL: UPGRADE PROGRESS ----
     # Open stats modal
     page.click("#btn-stats")
