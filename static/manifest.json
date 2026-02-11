@@ -1,0 +1,21 @@
+{
+  "name": "Summan Clicker",
+  "short_name": "SummanClick",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0d1117",
+  "theme_color": "#0d1117",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://www.summan.com/wp-content/uploads/2023/03/logo-summan.webp",
+      "sizes": "192x192",
+      "type": "image/webp"
+    },
+    {
+      "src": "https://www.summan.com/wp-content/uploads/2023/03/logo-summan.webp",
+      "sizes": "512x512",
+      "type": "image/webp"
+    }
+  ]
+}
