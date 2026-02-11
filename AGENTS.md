@@ -119,7 +119,8 @@ python -m pytest --tb=short -vv -s
 - Escape HTML attributes when injecting dynamic content via `innerHTML`
 - Sort upgrades by price ascending in `renderUpgrades()`
 - Include bilingual support (ES primary, EN secondary) for new UI text
-- Run existing tests before pushing to ensure no regressions
+- Create a Playwright test (`test_*.py`) for every new feature or bug fix before committing
+- Run the **full test suite** (`python -m pytest --tb=short -vv -s`) after implementation and before committing to catch regressions
 
 ### Never
 - Modify `buildings.js` cost balancing without explicit user approval
