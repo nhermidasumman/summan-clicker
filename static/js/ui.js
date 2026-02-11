@@ -403,61 +403,53 @@ const UI = (() => {
     // ==================== UPGRADES ====================
 
     function renderUpgrades(state) {
-        const parent = getScrollParent(els.upgradesList);
-        const scrollTop = parent ? parent.scrollTop : 0;
-
         const available = Upgrades.getAvailable(state);
+        const bar = document.getElementById('upgrades-bar');
         let html = '';
 
         if (available.length === 0) {
-            html = `<div class="empty-panel">${Lang.getLanguage() === 'en' ? 'No upgrades available right now' : 'No hay mejoras disponibles ahora'}</div>`;
-        } else {
-            for (const up of available) {
-                const canAfford = state.dataPoints >= up.cost;
-                html += `
-                    <div class="upgrade-item ${canAfford ? 'affordable' : 'locked'}"
-                         data-upgrade="${up.id}"
-                         onclick="Game.buyUpgrade('${up.id}')"
-                         title="${Upgrades.getDesc(up)}">
-                        <div class="upgrade-icon">${up.icon}</div>
-                        <div class="upgrade-info">
-                            <div class="upgrade-name">${Upgrades.getName(up)}</div>
-                            <div class="upgrade-desc">${Upgrades.getDesc(up)}</div>
-                        </div>
-                        <div class="upgrade-cost ${canAfford ? '' : 'too-expensive'}">
-                            💠 ${Utils.formatNumber(up.cost)}
-                        </div>
-                    </div>
-                `;
-            }
+            bar.style.display = 'none';
+            els.upgradesList.innerHTML = '';
+            return;
         }
 
-        // Show purchased count
-        const totalUpgrades = Upgrades.getAll().length;
-        const purchasedCount = state.upgrades.length;
-        html = `<div class="panel-header-info">${purchasedCount}/${totalUpgrades}</div>` + html;
+        bar.style.display = 'block';
+
+        for (const up of available) {
+            const canAfford = state.dataPoints >= up.cost;
+            html += `
+                <div class="upgrade-tile ${canAfford ? 'affordable' : 'locked'}"
+                     data-upgrade="${up.id}"
+                     onclick="Game.buyUpgrade('${up.id}')"
+                     title="${Upgrades.getName(up)}: ${Upgrades.getDesc(up)}&#10;💠 ${Utils.formatNumber(up.cost)}">
+                    <div class="upgrade-tile-icon">${up.icon}</div>
+                    <div class="upgrade-tile-cost">${Utils.formatNumber(up.cost)}</div>
+                </div>
+            `;
+        }
 
         els.upgradesList.innerHTML = html;
-        if (parent) parent.scrollTop = scrollTop;
     }
 
     function updateUpgradeAffordability(state) {
-        if (!els.upgradesList) return;
-        const items = els.upgradesList.querySelectorAll('.upgrade-item');
-        items.forEach(item => {
-            const id = item.dataset.id;
+        const list = document.getElementById('upgrades-list');
+        if (!list) return;
+
+        const items = list.querySelectorAll('.upgrade-tile');
+        for (const item of items) {
+            const id = item.dataset.upgrade;
             const upgrade = Upgrades.getById(id);
-            if (!upgrade) return;
+            if (!upgrade) continue;
 
             const canAfford = state.dataPoints >= upgrade.cost;
             if (canAfford) {
-                item.classList.remove('too-expensive');
                 item.classList.add('affordable');
+                item.classList.remove('locked');
             } else {
-                item.classList.add('too-expensive');
                 item.classList.remove('affordable');
+                item.classList.add('locked');
             }
-        });
+        }
     }
 
     function renderAchievements(state) {
@@ -543,7 +535,18 @@ const UI = (() => {
 
     function animateClick() {
         els.clickOrb.classList.add('clicked');
-        setTimeout(() => els.clickOrb.classList.remove('clicked'), 100);
+        setTimeout(() => els.clickOrb.classList.remove('clicked'), 150);
+
+        // Create click ripple ring
+        const ring = document.createElement('div');
+        ring.className = 'click-ring';
+        const target = document.getElementById('click-target');
+        const orbRect = els.clickOrb.getBoundingClientRect();
+        const targetRect = target.getBoundingClientRect();
+        ring.style.left = (orbRect.left - targetRect.left + orbRect.width / 2) + 'px';
+        ring.style.top = (orbRect.top - targetRect.top + orbRect.height / 2) + 'px';
+        target.appendChild(ring);
+        ring.addEventListener('animationend', () => ring.remove());
     }
 
     function showSaveIndicator() {
@@ -595,7 +598,7 @@ const UI = (() => {
         el.style.left = x + 'px';
         el.style.top = y + 'px';
         el.classList.add('visible');
-        el.textContent = '💠';
+        el.innerHTML = '<div class="golden-data-orb"></div>';
 
         const handleClick = (e) => {
             e.stopPropagation();

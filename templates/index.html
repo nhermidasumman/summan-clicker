@@ -45,7 +45,6 @@
             <div class="panel-header">
                 <div class="tab-bar">
                     <button id="tab-buildings" class="tab-btn active">Infraestructura</button>
-                    <button id="tab-upgrades" class="tab-btn">Mejoras</button>
                     <button id="tab-achievements" class="tab-btn">Logros</button>
                 </div>
             </div>
@@ -58,12 +57,14 @@
                 <button class="buy-amount-btn" data-amount="-1">Max</button>
             </div>
 
+            <!-- Upgrades Bar (Cookie Clicker style) -->
+            <div id="upgrades-bar" class="upgrades-bar">
+                <div id="upgrades-list" class="upgrades-bar-items"></div>
+            </div>
+
             <!-- Tab Content -->
             <div id="panel-buildings" class="tab-content active">
                 <div id="buildings-list" class="items-list"></div>
-            </div>
-            <div id="panel-upgrades" class="tab-content">
-                <div id="upgrades-list" class="items-list"></div>
             </div>
             <div id="panel-achievements" class="tab-content">
                 <div id="achievements-list" class="items-list"></div>
