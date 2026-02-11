@@ -333,48 +333,62 @@ window.UI = (() => {
     // ==================== BUILDINGS ====================
 
     function renderBuildings(state) {
-        const parent = getScrollParent(els.buildingsList);
-        const scrollTop = parent ? parent.scrollTop : 0;
+        try {
+            console.log("renderBuildings called. BuyAmount:", state.settings.buyAmount);
+            const parent = getScrollParent(els.buildingsList);
+            const scrollTop = parent ? parent.scrollTop : 0;
 
-        const visible = Buildings.getVisible(state.stats.totalDataEarned);
-        let html = '';
+            const visible = Buildings.getVisible(state.stats.totalDataEarned);
+            let html = '';
 
-        for (const def of visible) {
-            const owned = state.buildings[def.id] || 0;
-            let countToBuy = 1;
-            let cost = 0;
+            for (const def of visible) {
+                const owned = state.buildings[def.id] || 0;
+                let countToBuy = 1;
+                let cost = 0;
 
-            // Calculate cost based on buy amount
-            const discount = Game.getBuildingDiscount ? Game.getBuildingDiscount() : 1;
-            const currentPrice = def.baseCost * discount;
-            const buyAmount = state.settings.buyAmount || 1; // Default to 1 if undefined
+                // Calculate cost based on buy amount
+                const discount = Game.getBuildingDiscount ? Game.getBuildingDiscount() : 1;
+                const currentPrice = def.baseCost * discount;
+                const buyAmount = state.settings.buyAmount || 1; // Default to 1 if undefined
 
-            if (buyAmount === -1) {
-                // MAX
-                const max = Utils.maxAffordable(currentPrice, owned, state.dataPoints, def.growthRate);
-                if (max.count === 0) {
-                    // If can't afford any, show cost for 1
-                    cost = Utils.calculateBuildingCost(currentPrice, owned, def.growthRate);
-                    countToBuy = 1;
+                if (buyAmount === -1) {
+                    // MAX
+                    const max = Utils.maxAffordable(currentPrice, owned, state.dataPoints, def.growthRate);
+                    if (max.count === 0) {
+                        // If can't afford any, show cost for 1
+                        cost = Utils.calculateBuildingCost(currentPrice, owned, def.growthRate);
+                        countToBuy = 1;
+                    } else {
+                        cost = max.totalCost;
+                        countToBuy = max.count;
+                    }
                 } else {
-                    cost = max.totalCost;
-                    countToBuy = max.count;
+                    // x1, x10, x100
+                    countToBuy = buyAmount;
+                    cost = Utils.calculateBulkCost(currentPrice, owned, countToBuy, def.growthRate);
                 }
-            } else {
-                // x1, x10, x100
-                countToBuy = buyAmount;
-                cost = Utils.calculateBulkCost(currentPrice, owned, countToBuy, def.growthRate);
-            }
 
-            const mult = state.buildingMultipliers?.[def.id] || 1;
-            const dps = def.baseDps * mult;
-            const totalDps = dps * owned;
-            const canAfford = state.dataPoints >= cost;
+                const mult = state.buildingMultipliers?.[def.id] || 1;
+                const dps = def.baseDps * mult;
+                const totalDps = dps * owned;
+                const canAfford = state.dataPoints >= cost;
 
-            // Show (xN) if buying bulk
-            const amountDisplay = (buyAmount !== 1) ? ` (x${countToBuy})` : '';
+                if (def.id === 'architect') {
+                    console.log("Architect Debug:", {
+                        buyAmount: state.settings.buyAmount,
+                        countToBuy,
+                        cost,
+                        currentPrice,
+                        owned,
+                        canAfford,
+                        defGrowth: def.growthRate
+                    });
+                }
 
-            html += `
+                // Show (xN) if buying bulk
+                const amountDisplay = (buyAmount !== 1) ? ` (x${countToBuy})` : '';
+
+                html += `
                 <div class="building-item ${canAfford ? 'affordable' : 'locked'}"
                      data-building="${def.id}"
                      onclick="Game.buyBuilding('${def.id}')"
@@ -396,13 +410,13 @@ window.UI = (() => {
                     </div>
                 </div>
             `;
-        }
+            }
 
-        // Next building hint
-        const allBuildings = Buildings.getAll();
-        const nextLocked = allBuildings.find(b => state.stats.totalDataEarned < b.unlockAt);
-        if (nextLocked) {
-            html += `
+            // Next building hint
+            const allBuildings = Buildings.getAll();
+            const nextLocked = allBuildings.find(b => state.stats.totalDataEarned < b.unlockAt);
+            if (nextLocked) {
+                html += `
                 <div class="building-item building-locked">
                     <div class="building-icon">🔒</div>
                     <div class="building-info">
@@ -411,26 +425,61 @@ window.UI = (() => {
                     </div>
                 </div>
             `;
-        }
+            }
 
-        els.buildingsList.innerHTML = html;
-        if (parent) parent.scrollTop = scrollTop;
+            const debugIdx = html.indexOf(Lang.t('building_architect'));
+            if (debugIdx !== -1) {
+                console.log("HTML Architect Segment:", html.substring(debugIdx - 200, debugIdx + 800).replace(/\s+/g, ' '));
+            } else {
+                console.log("HTML Architect Segment: NOT FOUND");
+            }
+            console.log("Is buildingsList in DOM?", document.body.contains(els.buildingsList));
+            els.buildingsList.innerHTML = html;
+            if (parent) parent.scrollTop = scrollTop;
+        } catch (e) {
+            console.error("Error rendering buildings:", e);
+        }
     }
 
     function updateBuildingAffordability(state) {
-        // ... (existing implementation)
-        const items = els.buildingsList.querySelectorAll('.building-item[data-building]');
+        if (!els.buildingsList) return;
+        const items = els.buildingsList.querySelectorAll('.building-item');
         items.forEach(item => {
             const id = item.dataset.building;
+            if (!id) return;
+
+            const def = Buildings.getById(id);
+            if (!def) return;
+
             const owned = state.buildings[id] || 0;
-            const cost = Buildings.getCost(id, owned);
+
+            // Re-calculate cost using properly synchronized logic
+            const discount = Game.getBuildingDiscount ? Game.getBuildingDiscount() : 1;
+            const currentPrice = def.baseCost * discount;
+            const buyAmount = state.settings.buyAmount || 1;
+
+            let cost = 0;
+
+            if (buyAmount === -1) {
+                const max = Utils.maxAffordable(currentPrice, owned, state.dataPoints, def.growthRate);
+                if (max.count === 0) {
+                    cost = Utils.calculateBuildingCost(currentPrice, owned, def.growthRate);
+                } else {
+                    cost = max.totalCost;
+                }
+            } else {
+                cost = Utils.calculateBulkCost(currentPrice, owned, buyAmount, def.growthRate);
+            }
+
             const canAfford = state.dataPoints >= cost;
             item.classList.toggle('affordable', canAfford);
             item.classList.toggle('locked', !canAfford);
 
             const costEl = item.querySelector('.building-cost');
             if (costEl) {
-                costEl.textContent = `💠 ${Utils.formatNumber(cost)}`;
+                // Do NOT overwrite textContent here, as it destroys the (x10) formatting 
+                // and might use incorrect single-unit calculation if not careful.
+                // renderBuildings handles the text.
                 costEl.classList.toggle('too-expensive', !canAfford);
             }
         });

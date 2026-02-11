@@ -28,7 +28,7 @@ const Utils = (() => {
         const scale = Math.pow(10, tier * 3);
         const scaled = num / scale;
 
-        return Math.floor(scaled).toString() + suffix;
+        return parseFloat(scaled.toFixed(1)).toString() + suffix;
     }
 
     /**
