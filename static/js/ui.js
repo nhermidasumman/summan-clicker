@@ -14,6 +14,16 @@ window.UI = (() => {
     function init(state) {
         cacheElements();
         bindEvents(state);
+        updateBuyButtons(state.settings.buyAmount || 1);
+    }
+
+    function updateBuyButtons(amount) {
+        if (!els.buyBtns) return;
+        els.buyBtns.forEach(btn => {
+            const btnAmount = parseInt(btn.dataset.amount);
+            if (btnAmount === amount) btn.classList.add('active');
+            else btn.classList.remove('active');
+        });
     }
 
     function cacheElements() {
@@ -92,8 +102,7 @@ window.UI = (() => {
         els.buyBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 const amount = parseInt(btn.dataset.amount);
-                els.buyBtns.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
+                updateBuyButtons(amount);
                 Game.setBuyAmount(amount);
             });
         });
@@ -332,11 +341,38 @@ window.UI = (() => {
 
         for (const def of visible) {
             const owned = state.buildings[def.id] || 0;
-            const cost = Buildings.getCost(def.id, owned);
+            let countToBuy = 1;
+            let cost = 0;
+
+            // Calculate cost based on buy amount
+            const discount = Game.getBuildingDiscount ? Game.getBuildingDiscount() : 1;
+            const currentPrice = def.baseCost * discount;
+            const buyAmount = state.settings.buyAmount || 1; // Default to 1 if undefined
+
+            if (buyAmount === -1) {
+                // MAX
+                const max = Utils.maxAffordable(currentPrice, owned, state.dataPoints, def.growthRate);
+                if (max.count === 0) {
+                    // If can't afford any, show cost for 1
+                    cost = Utils.calculateBuildingCost(currentPrice, owned, def.growthRate);
+                    countToBuy = 1;
+                } else {
+                    cost = max.totalCost;
+                    countToBuy = max.count;
+                }
+            } else {
+                // x1, x10, x100
+                countToBuy = buyAmount;
+                cost = Utils.calculateBulkCost(currentPrice, owned, countToBuy, def.growthRate);
+            }
+
             const mult = state.buildingMultipliers?.[def.id] || 1;
             const dps = def.baseDps * mult;
             const totalDps = dps * owned;
             const canAfford = state.dataPoints >= cost;
+
+            // Show (xN) if buying bulk
+            const amountDisplay = (buyAmount !== 1) ? ` (x${countToBuy})` : '';
 
             html += `
                 <div class="building-item ${canAfford ? 'affordable' : 'locked'}"
@@ -354,7 +390,7 @@ window.UI = (() => {
                     </div>
                     <div class="building-right">
                         <div class="building-cost ${canAfford ? '' : 'too-expensive'}">
-                            💠 ${Utils.formatNumber(cost)}
+                            💠 ${Utils.formatNumber(cost)}${amountDisplay}
                         </div>
                         <div class="building-owned">${owned}</div>
                     </div>

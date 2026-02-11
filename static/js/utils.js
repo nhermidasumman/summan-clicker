@@ -15,8 +15,9 @@ const Utils = (() => {
     function formatNumber(num) {
         if (num === null || num === undefined || isNaN(num)) return '0';
         if (num < 0) return '-' + formatNumber(-num);
-        if (num < 1000) {
-            return Math.floor(num).toString();
+        // User requested full number until 100k
+        if (num < 100000) {
+            return Math.floor(num).toLocaleString();
         }
 
         const tier = Math.floor(Math.log10(Math.abs(num)) / 3);

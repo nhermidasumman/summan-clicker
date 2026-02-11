@@ -68,14 +68,16 @@ def test_buy_building(game_page: Page):
 
 def test_tabs_switching(game_page: Page):
     """Verify tabs switch correctly."""
-    # Click Upgrades tab
-    game_page.locator("#tab-upgrades").click()
-    expect(game_page.locator("#panel-upgrades")).to_have_class(re.compile("active"))
-    expect(game_page.locator("#panel-buildings")).not_to_have_class(re.compile("active"))
+    # Upgrades tab was removed, only Buildings and Achievements remain as main tabs
     
     # Click Achievements tab
     game_page.locator("#tab-achievements").click()
     expect(game_page.locator("#panel-achievements")).to_have_class(re.compile("active"))
+    expect(game_page.locator("#panel-buildings")).not_to_have_class(re.compile("active"))
+
+    # Click Buildings tab back
+    game_page.locator("#tab-buildings").click()
+    expect(game_page.locator("#panel-buildings")).to_have_class(re.compile("active"))
 
 def test_achievements_rendering(game_page: Page):
     """Verify achievements render without error."""

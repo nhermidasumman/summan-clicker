@@ -176,7 +176,7 @@ const Game = (() => {
 
         const amount = state.settings.buyAmount === -1
             ? Utils.maxAffordable(def.baseCost * getBuildingDiscount(), state.buildings[buildingId] || 0, state.dataPoints, def.growthRate).count
-            : state.settings.buyAmount;
+            : (state.settings.buyAmount || 1);
 
         if (amount <= 0) return false;
 
@@ -584,6 +584,7 @@ const Game = (() => {
         getInnovationPointsPreview,
         recalculateDps,
         calculateClickValue,
+        getBuildingDiscount,
     };
 })();
 
