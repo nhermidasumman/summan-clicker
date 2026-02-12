@@ -110,10 +110,10 @@ python -m pytest --tb=short -vv -s
 **After EVERY fix or feature, you MUST visually verify in-game before committing.** See `.agent/workflows/verify-in-game.md` for the full workflow. Summary:
 
 1. Start server (`uvicorn main:app --port 8000`)
-2. Write a Playwright script that opens the game, sets up state, and takes a screenshot
-3. Run the script and inspect the screenshot
-4. Only commit after confirming visual correctness
-5. Clean up temp files
+3. **PRIORITY**: Use the `browser_subagent` tool (or manual verification) to verify UI and interactive features. This is more reliable than Python scripts for visual/canvas elements.
+4. If using a Python script: **Assertions First**. Visual verification scripts MUST programmatically assert the presence/visibility of the element (e.g., `expect(locator).to_be_visible()`) BEFORE taking a screenshot. Blind screenshots are forbidden.
+5. Only commit after confirming visual correctness
+6. Clean up temp files
 
 ---
 

@@ -209,9 +209,10 @@ const Game = (() => {
         UI.renderUpgrades(state);
 
         // Check tutorial completion (Intern bought)
-        if (buildingId === 'intern' && state.buildings[buildingId] > 0) {
-            if (window.Tutorial) Tutorial.complete();
-        }
+        // REMOVED: Tutorial logic now handles this sequence in tutorial.js
+        // if (buildingId === 'intern' && state.buildings[buildingId] > 0) {
+        //    if (window.Tutorial) Tutorial.complete();
+        // }
 
         return true;
     }

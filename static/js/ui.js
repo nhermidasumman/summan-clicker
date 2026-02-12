@@ -404,7 +404,10 @@ window.UI = (() => {
                         <div class="building-name">${Lang.t(def.nameKey)}</div>
                         <div class="building-desc">${Lang.t(def.descKey)}</div>
                         <div class="building-stats">
-                            <span class="building-dps">⚡ ${Utils.formatDps(dps)}/s each</span>
+                            <span class="building-dps">
+                                <span style="color: var(--text-muted); font-weight: normal;">${Lang.t('produce')}</span>
+                                <span style="color: var(--green-light)">⚡ ${Utils.formatDps(dps)}/s</span>
+                            </span>
                             <span class="building-total-dps">(${Utils.formatDps(totalDps)}/s total)</span>
                         </div>
                     </div>

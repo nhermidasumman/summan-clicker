@@ -1,0 +1,52 @@
+/* ────────── TUTORIAL NARRATIVE ────────── */
+.tutorial-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 10000;
+    background: rgba(0, 0, 0, 0.4); /* Slight dim for impact */
+    backdrop-filter: blur(2px);
+}
+
+.mantra-text {
+    font-size: 5rem;
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 0 0 20px rgba(0, 0, 0, 0.8), 0 0 40px rgba(154, 195, 28, 0.6);
+    text-transform: uppercase;
+    text-align: center;
+    padding: 20px;
+    animation: mantra-punch 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    opacity: 0;
+    transform: scale(0.5);
+}
+
+.mantra-1 { color: var(--green-light); }
+.mantra-2 { color: var(--orange); }
+.mantra-3 { color: var(--red); font-size: 3.5rem; }
+
+@keyframes mantra-punch {
+    0% { transform: scale(0.5); opacity: 0; }
+    70% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* Specific fade-out for DPS explanation step */
+.tutorial-fade-out {
+    animation: fade-out 2s ease-in forwards;
+}
+
+@keyframes fade-out {
+    to { opacity: 0; }
+}
+
+@media (max-width: 600px) {
+    .mantra-text { font-size: 3rem; }
+    .mantra-3 { font-size: 2rem; }
+}
