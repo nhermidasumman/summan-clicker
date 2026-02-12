@@ -109,11 +109,13 @@ const Lang = (() => {
             prestige_gain: 'Ganarás {0} Puntos de Innovación',
 
             // Tutorial
-            tutorial_click_start: '¡Haz clic!',
-            tutorial_click_keep: '¡Dale caña!',
-            tutorial_click_more: '¡Más data!',
-            tutorial_click_almost: '¡Casi tienes data!',
-            tutorial_exploit: '¡Explota al proletariado!',
+            // Tutorial
+            tutorial_click_0_4: 'Inicia la operación, da clic',
+            tutorial_click_5_9: 'El mercado reacciona... Sigue dando clic',
+            tutorial_click_10_14: '¡El valor sube!',
+            tutorial_click_15_19: '¡Casi tienes data suficiente!',
+            tutorial_exploit: '¡Tu primer empleado! (No sabe que no le pagamos)',
+            prestige_multiplier: 'Multiplicador de Innovación: x{0}',
             prestige_multiplier: 'Multiplicador de Innovación: x{0}',
             prestige_next: 'Siguiente punto de innovación en: {0} Data Points',
 
@@ -224,11 +226,13 @@ const Lang = (() => {
             prestige_gain: 'You will gain {0} Innovation Points',
 
             // Tutorial
-            tutorial_click_start: 'Click it!',
-            tutorial_click_keep: 'Keep going!',
-            tutorial_click_more: 'More data!',
-            tutorial_click_almost: 'Almost there!',
-            tutorial_exploit: 'Exploit the proletariat!',
+            // Tutorial
+            tutorial_click_0_4: 'Start operations, click!',
+            tutorial_click_5_9: 'Market is reacting... Keep clicking',
+            tutorial_click_10_14: 'Value is rising!',
+            tutorial_click_15_19: 'Almost enough data!',
+            tutorial_exploit: 'Your first employee! (He doesn\'t know we don\'t pay him)',
+            prestige_multiplier: 'Innovation Multiplier: x{0}',
             prestige_multiplier: 'Innovation Multiplier: x{0}',
             prestige_next: 'Next innovation point at: {0} Data Points',
 

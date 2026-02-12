@@ -1,5 +1,6 @@
 import re
 import pytest
+# -*- coding: utf-8 -*-
 from playwright.sync_api import Page, expect
 
 def test_offline_modal_close(page: Page):

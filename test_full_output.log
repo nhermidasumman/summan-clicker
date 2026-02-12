@@ -1,0 +1,58 @@
+============================= test session starts =============================
+platform win32 -- Python 3.10.0, pytest-9.0.2, pluggy-1.6.0 -- C:\Users\nhermida\AppData\Local\Programs\Python\Python310\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\nhermida\.gemini\antigravity\scratch\summan-clicker
+plugins: anyio-4.12.1, base-url-2.1.0, playwright-0.7.2
+collecting ... collected 16 items
+
+test_buy_amounts.py::test_buy_amount_logic[chromium] FAILED              [  6%]
+test_buy_modes.py::test_buy_modes_integration[chromium] FAILED           [ 12%]
+test_game.py::test_game_loads[chromium] PASSED                           [ 18%]
+test_game.py::test_no_decimals_in_ui[chromium] PASSED                    [ 25%]
+test_game.py::test_clicking_mechanic[chromium] PASSED                    [ 31%]
+test_game.py::test_buy_building[chromium] PASSED                         [ 37%]
+test_game.py::test_tabs_switching[chromium] PASSED                       [ 43%]
+test_game.py::test_achievements_rendering[chromium] PASSED               [ 50%]
+test_game.py::test_modals_interface[chromium] PASSED                     [ 56%]
+test_game.py::test_language_switching[chromium] PASSED                   [ 62%]
+test_game.py::test_reset_functionality[chromium] PASSED                  [ 68%]
+test_game.py::test_export_import_functionality[chromium] PASSED          [ 75%]
+test_game.py::test_prestige_functional[chromium] PASSED                  [ 81%]
+test_offline_modal_stuck.py::test_offline_modal_close[chromium] PASSED   [ 87%]
+test_offline_modal_stuck.py::test_game_init_no_crash[chromium] PASSED    [ 93%]
+test_upgrade_tooltips.py::test_upgrade_tooltip_and_stats[chromium] PASSED [100%]
+
+================================== FAILURES ===================================
+E   AssertionError: Locator expected not to have class 're.compile('affordable')'
+    Actual value: None
+    Error: element(s) not found 
+    Call log:
+      - Expect "to_have_class" with timeout 5000ms
+      - waiting for locator("#building-intern")
+C:\Users\nhermida\.gemini\antigravity\scratch\summan-clicker\test_buy_amounts.py:29: AssertionError: Locator expected not to have class 're.compile('affordable')'
+E   AssertionError: Locator expected to have class 're.compile('affordable')'
+    Actual value: building-item locked 
+    Call log:
+      - Expect "to_have_class" with timeout 5000ms
+      - waiting for locator(".building-item[data-building='intern']")
+        9 × locator resolved to <div data-building="intern" class="building-item locked" onclick="Game.buyBuilding('intern')">…</div>
+          - unexpected value "building-item locked"
+---------------------------- Captured stdout call -----------------------------
+DEBUG: Buy Amount in State: 10
+DEBUG: x10 test. Owned: 11
+C:\Users\nhermida\.gemini\antigravity\scratch\summan-clicker\test_buy_modes.py:72: AssertionError: Locator expected to have class 're.compile('affordable')'
+=========================== short test summary info ===========================
+FAILED test_buy_amounts.py::test_buy_amount_logic[chromium] - AssertionError: Locator expected not to have class 're.compile('affordable')'
+Actual value: None
+Error: element(s) not found 
+Call log:
+  - Expect "to_have_class" with timeout 5000ms
+  - waiting for locator("#building-intern")
+FAILED test_buy_modes.py::test_buy_modes_integration[chromium] - AssertionError: Locator expected to have class 're.compile('affordable')'
+Actual value: building-item locked 
+Call log:
+  - Expect "to_have_class" with timeout 5000ms
+  - waiting for locator(".building-item[data-building='intern']")
+    9 × locator resolved to <div data-building="intern" class="building-item locked" onclick="Game.buyBuilding('intern')">…</div>
+      - unexpected value "building-item locked"
+======================== 2 failed, 14 passed in 39.00s ========================

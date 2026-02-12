@@ -1,5 +1,6 @@
 import pytest
 import re
+# -*- coding: utf-8 -*-
 from playwright.sync_api import Page, expect
 
 def test_buy_modes_integration(page: Page):

@@ -1,5 +1,6 @@
 import pytest
 import re
+# -*- coding: utf-8 -*-
 from playwright.sync_api import Page, expect
 
 @pytest.fixture(scope="function")

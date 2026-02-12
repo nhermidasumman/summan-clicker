@@ -82,6 +82,18 @@ python -m pytest --tb=short -vv -s
 
 ---
 
+### UI & Canvas Guidelines
+- **Visual Validation (CRITICAL):** Do not assume your code works just because the logic seems correct. You MUST access the game (via browser or verification script) and visually confirm that the element looks right (e.g., text fits inside container, alignment is perfect). If the output doesn't match a user's reasonable expectation, fix it *before* asking for review.
+- **Dynamic Sizing**: Never hardcode container dimensions for text. Calculate width/height based on text metrics (`ctx.measureText`) plus adequate padding (min 20px).
+- **Coordinate Precision**: Always round drawing coordinates (`Math.round`) to integer values to prevent sub-pixel rendering artifacts (blurriness).
+- **Text Safety**: When mixing Rough.js (sketchy style) with text:
+    - Increase padding (e.g. 30px) to prevent sketchy borders from overlapping text.
+    - Reduce `roughness` (e.g. 0.5) for containers to ensure cleaner edges significantly improve legibility.
+- **Context Management**: Always wrap canvas operations in `ctx.save()` and `ctx.restore()` to prevent style leakage.
+- **Responsiveness**: Ensure UI elements (like bubbles) are positioned relative to their target but with safe margins to avoid screen edge clipping.
+
+---
+
 ## Testing
 
 - **Framework:** pytest + playwright

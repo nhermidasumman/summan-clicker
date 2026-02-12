@@ -1,5 +1,6 @@
 import re
 import pytest
+# -*- coding: utf-8 -*-
 from playwright.sync_api import Page, expect
 
 def test_buy_amount_logic(page: Page):

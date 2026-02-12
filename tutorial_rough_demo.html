@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>High Quality Sketch Assets (Rough.js)</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #fdfdfd;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            margin-bottom: 30px;
+        }
+
+        .canvas-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .asset-box {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        canvas {
+            border: 1px solid #eee;
+        }
+
+        .controls {
+            margin-top: 10px;
+        }
+    </style>
+    <!-- Import Rough.js -->
+    <script src="https://unpkg.com/roughjs@latest/bundled/rough.js"></script>
+</head>
+
+<body>
+
+    <h1>Rough.js Asset Generator</h1>
+    <p>Procedural, high-quality, hand-drawn assets. Scalable, animated, and unique every time.</p>
+
+    <div class="canvas-container">
+        <!-- Dynamic Arrow Demo -->
+        <div class="asset-box">
+            <h3>1. Blocky 3D Arrows (Reference Style)</h3>
+            <p>Click "Click Me!" to generate procedural blocky arrows with hatch fill.</p>
+            <div
+                style="position: relative; width: 300px; height: 300px; border: 1px dashed #ccc; margin: 0 auto; display: flex; align-items: center; justify-content: center;">
+                <button id="demo-target" onclick="randomizeArrow()"
+                    style="padding: 10px 20px; font-size: 16px; cursor: pointer; z-index: 10;">Click Me! (Data
+                    Point)</button>
+                <canvas id="canvas-dynamic" width="300" height="300"
+                    style="position: absolute; top: 0; left: 0; pointer-events: none;"></canvas>
+            </div>
+        </div>
+
+        <!-- Intern Message Demo -->
+        <div class="asset-box">
+            <h3>2. Intern Unlock Message</h3>
+            <p>Selected Copy:</p>
+            <div style="font-weight: bold; margin-bottom: 20px; color: #555;">
+                "¡Tu primer empleado! (No sabe que no le pagamos)"
+            </div>
+            <div style="position: relative; height: 200px;">
+                <canvas id="canvas-message" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const green = '#9ac31c';
+
+        // Helper to get point on an arc relative to center 0,0
+        // But we want to construct a shape.
+
+        function drawBlockyCurvedArrow(rc, x, y, angleToTarget) {
+            // We want an arrow pointing to 0,0 (relative).
+            // But for drawing, let's draw it pointing RIGHT (0 deg) and then rotate content.
+            // Actually, let's draw a curved arrow that "wraps" slightly.
+
+            // Parameters for variation
+            const width = 25 + Math.random() * 15; // Thickness of the tail
+            const length = 80 + Math.random() * 30; // Total length
+            const headSize = 35 + Math.random() * 10;
+            const curve = (Math.random() - 0.5) * 60; // Curve amount (Y control point offset)
+
+            // Points definition for a "linear" block arrow that we will warp/curve
+            // Tail starts at -length, 0. Head tip at 0,0.
+
+            // Let's define the points relative to a straight line, then apply a curve transform?
+            // Or just draw straight block arrows if curves are too hard to make look good procedurally?
+            // The reference has a distinct curve.
+
+            // Let's draw a path string.
+            // Tail Base: x=-length
+
+            // Top Curve Control
+            const midX = -length / 2;
+            const midY = -curve;
+
+            // Let's simply draw a polygon for the arrow HEAD and a path for the TAIL?
+            // No, it needs to be one filled shape.
+
+            // Constructing a path:
+            // 1. Tip (0,0)
+            // 2. Head Bottom Wing (-headSize, headSize/2)
+            // 3. Head Bottom Join (-headSize + 10, width/2)
+            // 4. Tail Bottom (-length, width/2 + curve) ... wait, curve needs bezier
+            // Let's stick to a simpler "Bent Block Arrow".
+
+            // Tip is at (0,0)
+            // Head is a triangle.
+            // Base is bent.
+
+            const tip = [0, 0];
+            const headBackX = -headSize;
+            const headTopY = -headSize / 1.2;
+            const headBotY = headSize / 1.2;
+
+            const tailJoinX = -headSize + 10;
+            const tailWidth = width;
+            const tailLen = length;
+
+            // Let's build a path string
+            // M 0 0 (Tip)
+            // L -30 -30 (Head Top)
+            // L -25 -15 (Neck Top)
+            // Q -60 -30 -100 -10 (Tail Top, curved)
+            // L -100 10 (Tail Bottom)
+            // Q -60 -10 -25 15 (Neck Bottom, curved parallel)
+            // L -30 30 (Head Bottom)
+            // Z
+
+            const cp1x = -tailLen * 0.5;
+            const cp1y = -curve; // Control point Y
+            const endX = -tailLen;
+            const endY = curve / 2; // End point Y (slight S-curve or arc)
+
+            let d = `M 0 0 `; // Tip
+            d += `L ${headBackX} ${headTopY} `; // Head Top Wing
+            d += `L ${tailJoinX} ${-tailWidth / 2} `; // Neck Top
+
+            // Curve to Tail Top
+            d += `Q ${cp1x} ${cp1y - tailWidth / 2} ${endX} ${endY - tailWidth / 2} `;
+
+            // Line to Tail Bottom
+            d += `L ${endX} ${endY + tailWidth / 2} `;
+
+            // Curve back to Neck Bottom
+            d += `Q ${cp1x} ${cp1y + tailWidth / 2} ${tailJoinX} ${tailWidth / 2} `;
+
+            // Line to Head Bottom Wing
+            d += `L ${headBackX} ${headBotY} `;
+
+            // Close to Tip
+            d += `Z`;
+
+            // Depth/Shadow Duplicate (drawn first, slightly offset)
+            rc.path(d, {
+                fill: 'black',
+                fillStyle: 'solid',
+                stroke: 'none',
+                roughness: 0
+            });
+            // We need to offset the "main" one to show the depth.
+            // Actually, let's just translate the context for the main one.
+
+            // Let's just draw the shadow manually offset
+            rc.path(d, {
+                stroke: 'black', strokeWidth: 1,
+                fill: '#222', fillStyle: 'solid', // Dark shadow
+                roughness: 1
+            });
+
+            // Draw the Green Arrow "on top" (offset by -4, -4)
+            // Since we can't easily translate path string coordinates regex style,
+            // we will use the context translate given we are inside a context save/restore
+            // in the parent function? 
+            // Better: just draw it twice with slight random variation in params? No, must match.
+            // RoughJS path accepts a string.
+
+            // Let's rely on the parent to handle the "3D" offset? 
+            // Or just draw it here. 
+            // To offset the path, we'd need to parse it. 
+            // CSS Transform is easier regarding the '3D' look. 
+            // But for the exportable asset, we want it in the canvas.
+
+            // Simple hack: Draw it once at 4,4 (Shadow), then once at 0,0 (Main).
+            // But we need to move the "pen" for the second draw.
+            // We can't move the pen for `rc.path` easily without changing the d-string.
+
+            // Let's just output the functionality for a SINGLE layer arrow now, 
+            // and use `hachure` fill which is the key request.
+
+            rc.path(d, {
+                fill: green,
+                fillStyle: 'hachure',
+                fillWeight: 3,
+                hachureGap: 4,
+                hachureAngle: -45,
+                stroke: 'black',
+                strokeWidth: 2,
+                roughness: 1.5
+            });
+        }
+
+        function randomizeArrow() {
+            const canvas = document.getElementById('canvas-dynamic');
+            const rc = rough.canvas(canvas);
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            const cx = width / 2;
+            const cy = height / 2;
+
+            ctx.clearRect(0, 0, width, height);
+
+            const angle = Math.random() * Math.PI * 2;
+            const tipX = cx + Math.cos(angle) * 60;
+            const tipY = cy + Math.sin(angle) * 60;
+
+            ctx.save();
+            ctx.translate(tipX, tipY);
+            ctx.rotate(angle + Math.PI); // Point towards center
+
+            // Draw Shadow Layer (Offset)
+            ctx.translate(5, 5);
+            // Wait, I put the shadow logic regarding colors inside the function in my thought process
+            // but the code above only draws the Green one.
+
+            // Let's update `drawBlockyCurvedArrow` to takes color/offset? 
+            // Nah, let's just draw it black here.
+
+            // Actually, let's redefine the draw function to just be the path generator
+            // and we call it twice.
+
+            // RE-DEFINING helper locally to avoid messing up scope
+            const widthVar = 25 + Math.random() * 15;
+            const length = 85 + Math.random() * 30;
+            const headSize = 35 + Math.random() * 10;
+            const curve = (Math.random() - 0.5) * 60;
+
+            const tip = [0, 0];
+            const headBackX = -headSize;
+            const headTopY = -headSize / 1.2;
+            const headBotY = headSize / 1.2;
+            const tailJoinX = -headSize + 10;
+            const tailWidth = widthVar;
+            const tailLen = length;
+
+            const cp1x = -tailLen * 0.5;
+            const cp1y = -curve;
+            const endX = -tailLen;
+            const endY = curve / 2;
+
+            let d = `M 0 0 `;
+            d += `L ${headBackX} ${headTopY} `;
+            d += `L ${tailJoinX} ${-tailWidth / 2} `;
+            d += `Q ${cp1x} ${cp1y - tailWidth / 2} ${endX} ${endY - tailWidth / 2} `;
+            d += `L ${endX} ${endY + tailWidth / 2} `;
+            d += `Q ${cp1x} ${cp1y + tailWidth / 2} ${tailJoinX} ${tailWidth / 2} `;
+            d += `L ${headBackX} ${headBotY} `;
+            d += `Z`;
+
+            // Shadow
+            ctx.save();
+            ctx.translate(4, 4);
+            rc.path(d, {
+                fill: 'black', fillStyle: 'solid', stroke: 'none', roughness: 0.5
+            });
+            ctx.restore();
+
+            // Main
+            rc.path(d, {
+                fill: green, fillStyle: 'hachure', fillWeight: 3, hachureGap: 3, stroke: 'black', strokeWidth: 2, roughness: 1.5
+            });
+
+            ctx.restore();
+        }
+
+        function drawInternMessage() {
+            const canvas = document.getElementById('canvas-message');
+            const rc = rough.canvas(canvas);
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const mainText = "¡Tu primer empleado!";
+            const subText = "(No sabe que no le pagamos)";
+
+            // Draw Bubble
+            rc.rectangle(50, 50, 300, 80, { fill: 'white', fillStyle: 'solid', roughness: 1 });
+
+            // Text
+            ctx.font = 'bold 20px "Comic Sans MS"';
+            ctx.fillStyle = 'black';
+            ctx.textAlign = 'center';
+            ctx.fillText(mainText, 200, 90);
+
+            ctx.font = '16px "Comic Sans MS"';
+            ctx.fillStyle = '#555';
+            ctx.fillText(subText, 200, 115);
+
+            // Blocky Arrow pointing to intern
+            // Start at 360, 90. Pointing right.
+            // Using same logic as above.
+            ctx.save();
+            ctx.translate(350, 90);
+            // No rotation needed if we frame it as pointing right (0 deg)
+            // But our logic builds it pointing LEFT (tip at 0, tail at -len)
+            // So we rotate 180 (PI) to point RIGHT.
+            ctx.rotate(Math.PI);
+
+            // Hardcoded nice params for the UI arrow
+            const tailLen = 60;
+            const tailWidth = 20;
+            const headSize = 25;
+            const curve = 0; // Straight
+
+            const headBackX = -headSize;
+            const headTopY = -headSize / 1.2;
+            const headBotY = headSize / 1.2;
+            const tailJoinX = -headSize + 5;
+
+            let d = `M 0 0 `;
+            d += `L ${headBackX} ${headTopY} `;
+            d += `L ${tailJoinX} ${-tailWidth / 2} `;
+            d += `L ${-tailLen} ${-tailWidth / 2} `; // Straight line
+            d += `L ${-tailLen} ${tailWidth / 2} `;
+            d += `L ${tailJoinX} ${tailWidth / 2} `;
+            d += `L ${headBackX} ${headBotY} `;
+            d += `Z`;
+
+            // Shadow
+            ctx.translate(3, 3);
+            rc.path(d, { fill: 'black', fillStyle: 'solid', stroke: 'none' });
+            ctx.translate(-3, -3);
+
+            // Main
+            rc.path(d, {
+                fill: green, fillStyle: 'hachure', fillWeight: 3, hachureGap: 3, stroke: 'black', strokeWidth: 2, roughness: 1
+            });
+
+            ctx.restore();
+        }
+
+        // Init
+        randomizeArrow();
+        drawInternMessage();
+    </script>
+</body>
+
+</html>

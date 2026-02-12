@@ -3,6 +3,7 @@ Test: Upgrade tooltips display correctly and Stats modal shows upgrade progress.
 """
 import re
 import pytest
+# -*- coding: utf-8 -*-
 from playwright.sync_api import Page, expect
 
 
