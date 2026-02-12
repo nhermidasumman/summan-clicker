@@ -40,7 +40,7 @@ def test_upgrade_tooltip_and_stats(page: Page):
         assert "\n" not in tooltip, f"Tile {i} tooltip contains raw newline: '{tooltip}'"
         # Must contain the cost indicator
         assert "💠" in tooltip or "💠" in tooltip or "amp;" not in tooltip.split("💠")[0] if "💠" in tooltip else True
-        print(f"  Tile {i} tooltip OK: {tooltip[:60]}...")
+        print(f"  Tile {i} tooltip OK: {tooltip[:60].encode('ascii', 'replace').decode()}...")
 
     # ---- HOVER TOOLTIP VISIBILITY ----
     # Hover over the first tile and check the JS tooltip div appears
@@ -54,7 +54,7 @@ def test_upgrade_tooltip_and_stats(page: Page):
     actual_text = tooltip_div.text_content()
     assert first_tooltip_text in actual_text or actual_text in first_tooltip_text, \
         f"Tooltip text mismatch. Expected: '{first_tooltip_text}', Got: '{actual_text}'"
-    print(f"  ✅ Hover tooltip visible with correct text: {actual_text[:60]}...")
+    print(f"  OK: Hover tooltip visible with correct text: {actual_text[:60].encode('ascii', 'replace').decode()}...")
 
     # ---- STATS MODAL: UPGRADE PROGRESS ----
     # Open stats modal
@@ -80,4 +80,4 @@ def test_upgrade_tooltip_and_stats(page: Page):
     total = int(match.group(2))
     assert total > 0, f"Total upgrades should be > 0, got {total}"
 
-    print(f"\n✅ All checks passed! Tooltips OK, Stats shows upgrade progress.")
+    print(f"\nOK: All checks passed! Tooltips OK, Stats shows upgrade progress.")

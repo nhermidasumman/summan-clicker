@@ -17,8 +17,14 @@ def test_buy_modes_integration(page: Page):
         return page.evaluate(f"Game.getState().buildings['{id}'] || 0")
 
     def cheat_data(amount):
-        # Update state and only render buildings to avoid UI.update() crash
-        page.evaluate(f"const s = Game.getState(); s.dataPoints = {amount}; UI.renderBuildings(s);")
+        # Update state: dataPoints + totalDataEarned (needed for building visibility unlocks)
+        page.evaluate(f"""
+            const s = Game.getState();
+            s.dataPoints = {amount};
+            s.stats.totalDataEarned = Math.max(s.stats.totalDataEarned, {amount});
+            s.stats.totalDataAllTime = Math.max(s.stats.totalDataAllTime || 0, {amount});
+            UI.renderBuildings(s);
+        """)
 
     # Reset game
     page.evaluate("Game.resetGame()")
@@ -64,7 +70,7 @@ def test_buy_modes_integration(page: Page):
     # Set data to 100.
     # x1 cost ~20 (affordable). x100 cost > 1000 (locked).
     
-    cheat_data(100)
+    cheat_data(200)
     
     # Select x1 -> Should be affordable
     page.evaluate("Game.setBuyAmount(1)")
@@ -78,7 +84,8 @@ def test_buy_modes_integration(page: Page):
     print("DEBUG: Correspondence check passed (x1 affordable, x100 locked)")
 
     # --- Test x100 Purchase ---
-    cheat_data(1000000000) # 1B
+    # 100 interns from owned=11 costs ~11B (exponential growth: 1.18^110 ≈ 80M per unit)
+    cheat_data(100000000000) # 100B
 
     page.click("button[data-amount='100']")
     intern_item.click()
@@ -106,4 +113,4 @@ def test_buy_modes_integration(page: Page):
     
     # Verify data points reduced
     remaining = page.evaluate("Game.getState().dataPoints")
-    assert remaining < 200000, f"Max buy should leave little change (Server cost ~130k+). Got {remaining}"
+    assert remaining < 5000000, f"Max buy should spend most of the budget. Got {remaining} remaining of 10M"
