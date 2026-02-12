@@ -38,6 +38,7 @@ const Lang = (() => {
             export_save: 'Exportar',
             import_save: 'Importar',
             reset_game: 'Reiniciar',
+            reset_tutorial: 'Reiniciar Tutorial',
             confirm_reset: '¿Estás seguro? Se perderá todo el progreso.',
             confirm_prestige: '¿Innovar? Perderás tus Data Points y edificios, pero ganarás Puntos de Innovación permanentes.',
             language: 'Idioma',
@@ -107,6 +108,13 @@ const Lang = (() => {
             // Prestige
             prestige_desc: 'Reinicia tu progreso a cambio de Puntos de Innovación permanentes.',
             prestige_gain: 'Ganarás {0} Puntos de Innovación',
+
+            // Tutorial
+            tutorial_click_start: '¡Haz clic!',
+            tutorial_click_keep: '¡Dale caña!',
+            tutorial_click_more: '¡Más data!',
+            tutorial_click_almost: '¡Casi tienes data!',
+            tutorial_exploit: '¡Explota al proletariado!',
             prestige_multiplier: 'Multiplicador de Innovación: x{0}',
             prestige_next: 'Siguiente punto de innovación en: {0} Data Points',
 
@@ -146,6 +154,7 @@ const Lang = (() => {
             export_save: 'Export',
             import_save: 'Import',
             reset_game: 'Reset',
+            reset_tutorial: 'Restart Tutorial',
             confirm_reset: 'Are you sure? All progress will be lost.',
             confirm_prestige: 'Innovate? You will lose your Data Points and buildings, but gain permanent Innovation Points.',
             language: 'Language',
@@ -215,6 +224,13 @@ const Lang = (() => {
             // Prestige
             prestige_desc: 'Reset your progress in exchange for permanent Innovation Points.',
             prestige_gain: 'You will gain {0} Innovation Points',
+
+            // Tutorial
+            tutorial_click_start: 'Click it!',
+            tutorial_click_keep: 'Keep going!',
+            tutorial_click_more: 'More data!',
+            tutorial_click_almost: 'Almost there!',
+            tutorial_exploit: 'Exploit the proletariat!',
             prestige_multiplier: 'Innovation Multiplier: x{0}',
             prestige_next: 'Next innovation point at: {0} Data Points',
 

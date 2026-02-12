@@ -234,6 +234,7 @@ window.UI = (() => {
                 <div class="settings-buttons">
                     <button onclick="handleExport()" class="settings-btn">📤 ${Lang.t('export_save')}</button>
                     <button onclick="handleImport()" class="settings-btn">📥 ${Lang.t('import_save')}</button>
+                    <button onclick="Game.resetTutorial()" class="settings-btn">🎓 ${Lang.t('reset_tutorial')}</button>
                     <button onclick="handleReset()" class="settings-btn danger">🗑️ ${Lang.t('reset_game')}</button>
                 </div>
             </div>

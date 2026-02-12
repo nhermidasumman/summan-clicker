@@ -29,6 +29,9 @@ const Game = (() => {
         UI.init(state);
         UI.renderAll(state);
 
+        // Initialize Tutorial
+        if (window.Tutorial) Tutorial.init();
+
         // Schedule events
         scheduleGoldenData();
         scheduleRandomEvent();
@@ -58,6 +61,10 @@ const Game = (() => {
 
         update(deltaSec);
         UI.update(state, deltaSec);
+
+        // Update Tutorial continuously (to catch DOM changes)
+        if (window.Tutorial) Tutorial.update();
+
 
         animationFrameId = requestAnimationFrame(gameLoop);
     }
@@ -134,6 +141,9 @@ const Game = (() => {
         }
 
         UI.animateClick();
+
+        // Update Tutorial
+        if (window.Tutorial) Tutorial.update();
     }
 
     /**
@@ -197,6 +207,12 @@ const Game = (() => {
         recalculateDps();
         UI.renderBuildings(state);
         UI.renderUpgrades(state);
+
+        // Check tutorial completion (Intern bought)
+        if (buildingId === 'intern' && state.buildings[buildingId] > 0) {
+            if (window.Tutorial) Tutorial.complete();
+        }
+
         return true;
     }
 
@@ -586,6 +602,10 @@ const Game = (() => {
         recalculateDps,
         calculateClickValue,
         getBuildingDiscount,
+        resetTutorial: () => {
+            if (window.UI) UI.closeModal();
+            if (window.Tutorial) Tutorial.restart();
+        }
     };
 })();
 

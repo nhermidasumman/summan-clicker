@@ -148,6 +148,15 @@ window.Tutorial = (() => {
     return {
         init,
         update,
-        complete
+        complete,
+        restart: () => {
+            console.log("Tutorial: Restarting...");
+            localStorage.removeItem(TUTORIAL_KEY);
+            state.active = true;
+            state.step = 0;
+            if (!state.arrowElement) createElements();
+            update();
+            Utils.showToast(Lang.getLanguage() === 'en' ? 'Tutorial restarted!' : '¡Tutorial reiniciado!', 'info', 2000);
+        }
     };
 })();
