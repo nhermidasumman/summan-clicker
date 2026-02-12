@@ -578,6 +578,8 @@ const Game = (() => {
         recalculateDps();
         UI.renderAll(state);
         Utils.showToast('🔄 ' + (Lang.getLanguage() === 'en' ? 'Game reset!' : '¡Juego reiniciado!'), 'info', 3000);
+
+        if (window.Tutorial) Tutorial.restart();
     }
 
     function getInnovationPointsPreview() {

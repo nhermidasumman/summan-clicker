@@ -171,6 +171,17 @@ const Utils = (() => {
         const container = document.getElementById('toast-container');
         if (!container) return;
 
+        // Prevent duplicate messages
+        const existingToasts = container.querySelectorAll('.toast');
+        for (const existing of existingToasts) {
+            if (existing.innerHTML === message) {
+                // Already showing this message, unwanted spam
+                // Optional: Restart animation/timer? 
+                // For now, just return to prevent stacking.
+                return;
+            }
+        }
+
         const toast = document.createElement('div');
         toast.className = `toast toast-${type}`;
         toast.innerHTML = message;

@@ -143,6 +143,7 @@ window.Tutorial = (() => {
         const rc = state.rc;
         const width = state.canvas.width;
         const height = state.canvas.height;
+        const isMobile = window.innerWidth <= 900;
 
         ctx.clearRect(0, 0, width, height);
 
@@ -152,19 +153,34 @@ window.Tutorial = (() => {
 
         let tipX, tipY, rotation;
 
-        // Configuration based on type
+        // Configuration based on type AND device
         if (type === 'orb') {
-            // Orb: Arrow points RIGHT
-            const padding = 20;
-            tipX = targetX - padding;
-            tipY = targetY;
-            rotation = ((state.roughSeed % 100) / 100 - 0.5) * 0.2;
+            if (isMobile) {
+                // Orb is Top-Center. Arrow points UP from below
+                tipX = rect.left + rect.width / 2;
+                tipY = rect.bottom + 10; // Slightly below orb
+                rotation = -Math.PI / 2 + ((state.roughSeed % 100) / 100 - 0.5) * 0.2;
+            } else {
+                // Orb: Arrow points RIGHT
+                const padding = 20;
+                tipX = targetX - padding;
+                tipY = targetY;
+                rotation = ((state.roughSeed % 100) / 100 - 0.5) * 0.2;
+            }
         } else {
-            // Intern: Arrow points LEFT
-            const padding = 20;
-            tipX = targetX + targetW + padding;
-            tipY = targetY;
-            rotation = Math.PI + ((state.roughSeed % 100) / 100 - 0.5) * 0.2;
+            // Intern
+            if (isMobile) {
+                // Intern is Bottom-Center. Arrow points DOWN from above
+                tipX = rect.left + rect.width / 2;
+                tipY = rect.top - 10; // Slightly above button
+                rotation = Math.PI / 2 + ((state.roughSeed % 100) / 100 - 0.5) * 0.2;
+            } else {
+                // Intern: Arrow points LEFT
+                const padding = 20;
+                tipX = targetX + targetW + padding;
+                tipY = targetY;
+                rotation = Math.PI + ((state.roughSeed % 100) / 100 - 0.5) * 0.2;
+            }
         }
 
         ctx.save();
@@ -187,9 +203,11 @@ window.Tutorial = (() => {
 
         // Calculate Bubble Dimensions & Position
         ctx.font = 'bold 15px "Comic Sans MS", "Chalkboard SE", sans-serif';
-        const lines = wrapText(ctx, msg, 250); // wrap width
+        // Narrower text for mobile to prevent overflow
+        const wrapWidth = isMobile ? 200 : 250;
+        const lines = wrapText(ctx, msg, wrapWidth);
         const lineHeight = 20;
-        const paddingH = 30; // Increased padding
+        const paddingH = 30;
         const paddingV = 20;
 
         let maxLineWidth = 0;
@@ -199,21 +217,42 @@ window.Tutorial = (() => {
         });
 
         // Ensure bubble is wide enough
-        const bubbleW = Math.max(180, maxLineWidth + paddingH * 2);
+        const bubbleW = Math.max(160, maxLineWidth + paddingH * 2);
         const bubbleH = (lines.length * lineHeight) + paddingV * 2;
 
         // Position relative to tip
         let bubbleX, bubbleY;
         const verticalGap = 40;
 
-        if (type === 'orb') {
-            // Left and Above
-            bubbleX = tipX - bubbleW - 20;
-            bubbleY = tipY - bubbleH - verticalGap;
+        if (isMobile) {
+            // Center horizontally
+            bubbleX = (window.innerWidth - bubbleW) / 2;
+
+            if (type === 'orb') {
+                // Orb: Bubble is BELOW the arrow tail
+                const arrowLen = state.arrowGeometry.length;
+                bubbleY = tipY + arrowLen + 20;
+            } else {
+                // Intern: Bubble is ABOVE the arrow tail
+                const arrowLen = state.arrowGeometry.length;
+                bubbleY = tipY - arrowLen - bubbleH - 20;
+            }
+
+            // Clamp bubble to screen horizontal edges
+            if (bubbleX < 10) bubbleX = 10;
+            if (bubbleX + bubbleW > window.innerWidth - 10) bubbleX = window.innerWidth - bubbleW - 10;
+
         } else {
-            // Right and Above
-            bubbleX = tipX + 40;
-            bubbleY = tipY - bubbleH - verticalGap;
+            // Desktop Logic
+            if (type === 'orb') {
+                // Left and Above
+                bubbleX = tipX - bubbleW - 20;
+                bubbleY = tipY - bubbleH - verticalGap;
+            } else {
+                // Right and Above
+                bubbleX = tipX + 40;
+                bubbleY = tipY - bubbleH - verticalGap;
+            }
         }
 
         // Round coordinates to avoid sub-pixel blurring
