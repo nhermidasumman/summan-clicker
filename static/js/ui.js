@@ -248,11 +248,11 @@ window.UI = (() => {
                 <div class="prestige-info">
                     <p>${Lang.t('prestige_desc')}</p>
                     <div class="prestige-stat">
-                        ${Lang.t('innovation_gain')}: <strong>🌟 ${preview}</strong>
+                        ${Lang.t('prestige_gain', preview)}
                     </div>
                 </div>
                 <button onclick="handlePrestige()" class="prestige-btn ${preview > 0 ? 'available' : 'disabled'}" ${preview <= 0 ? 'disabled' : ''}>
-                    🚀 ${Lang.t('innovate_now')}
+                    🚀 ${Lang.t('prestige')}
                 </button>
             </div>
         `;
@@ -576,29 +576,34 @@ window.UI = (() => {
         if (tooltipEl) tooltipEl.classList.remove('visible');
     }
 
+    let _overHandler = null;
+    let _outHandler = null;
+
     function bindUpgradeTooltips() {
         const list = els.upgradesList;
         if (!list) return;
 
-        // Use event delegation on the list container
-        list.onmouseenter = null;
-        list.onmouseleave = null;
+        // Remove old listeners before adding new ones
+        if (_overHandler) list.removeEventListener('mouseover', _overHandler);
+        if (_outHandler) list.removeEventListener('mouseout', _outHandler);
 
-        list.addEventListener('mouseover', (e) => {
+        _overHandler = (e) => {
             const tile = e.target.closest('.upgrade-tile');
             if (!tile) return;
             clearTimeout(tooltipTimeout);
-            tooltipTimeout = setTimeout(() => showTooltipFor(tile), 100); // 100ms delay
-        });
+            tooltipTimeout = setTimeout(() => showTooltipFor(tile), 100);
+        };
 
-        list.addEventListener('mouseout', (e) => {
+        _outHandler = (e) => {
             const tile = e.target.closest('.upgrade-tile');
             if (!tile) return;
-            // Check if we're moving to another part of the same tile
             const related = e.relatedTarget;
             if (related && tile.contains(related)) return;
             hideTooltip();
-        });
+        };
+
+        list.addEventListener('mouseover', _overHandler);
+        list.addEventListener('mouseout', _outHandler);
     }
 
     function updateUpgradeAffordability(state) {
