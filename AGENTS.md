@@ -109,20 +109,42 @@ python -m pytest --tb=short -vv -s
 
 - **Branch:** Work on `main`. Commits to `main` auto-deploy to Render.
 - **Commit messages:** Imperative mood, concise (e.g., "Fix tooltip escaping in upgrade tiles").
-- **Push:** Always `git add . && git commit -m "message" && git push`.
+- **Commit messages:** Imperative mood, concise (e.g., "Fix tooltip escaping in upgrade tiles").
+
+### ⚠️ Pre-Commit Checklist (MANDATORY — no exceptions)
+
+Before EVERY `git commit`, you MUST complete ALL of these steps IN ORDER:
+
+1. ✅ Run the **full test suite**: `python -m pytest --tb=short -vv -s`
+2. ✅ Verify **ALL tests pass** (0 failures)
+3. ✅ Complete the visual verification workflow (see `.agent/workflows/verify-in-game.md`)
+4. ✅ Only then: `git add <files> && git commit -m "message"`
+
+> **STOP after commit.** Do NOT `git push` unless the user explicitly requests deployment.
+
+### 🚫 Push = Deploy (requires explicit user approval)
+
+- `git push` triggers auto-deploy to production (Render).
+- **NEVER push without the user explicitly asking to deploy.**
+- If you're unsure, ASK. The default is to commit only and notify the user.
+
 
 ---
 
 ## Boundaries
 
 ### Always
+- **Validate your own work end-to-end.** You MUST be able to access, run, and visually verify every implementation you make — whether that means running tests, opening the browser, inspecting the DOM, or taking screenshots. If you are blocked by missing tools, dependencies, permissions, or environment issues (e.g., browser won't launch, Playwright not installed, port not available), you MUST immediately ask the user to install, download, configure, or grant whatever is needed to unblock you. **Never skip validation because a tool isn't working — escalate to the user instead.**
 - Escape HTML attributes when injecting dynamic content via `innerHTML`
+
 - Sort upgrades by price ascending in `renderUpgrades()`
 - Include bilingual support (ES primary, EN secondary) for new UI text
 - Create a Playwright test (`test_*.py`) for every new feature or bug fix before committing
 - Run the **full test suite** (`python -m pytest --tb=short -vv -s`) after implementation and before committing to catch regressions
 
 ### Never
+- **Push to `main` (deploy) without explicit user approval** — commit only, then ask
+- **Commit without running the FULL test suite** (all `test_*.py` files, not just one)
 - Modify `buildings.js` cost balancing without explicit user approval
 - Delete or overwrite save data without user confirmation
 - Add external dependencies (npm packages, CDNs) without user approval

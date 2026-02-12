@@ -602,10 +602,6 @@ const Game = (() => {
         recalculateDps,
         calculateClickValue,
         getBuildingDiscount,
-        resetTutorial: () => {
-            if (window.UI) UI.closeModal();
-            if (window.Tutorial) Tutorial.restart();
-        }
     };
 })();
 
