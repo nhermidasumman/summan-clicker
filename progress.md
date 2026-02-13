@@ -106,3 +106,19 @@ Original prompt: Continua
 - Validation:
   - `python -m pytest --tb=short -vv -s` => 29 passed.
   - `python tools/qa/verify_modular_bootstrap.py` => pass, screenshot reviewed.
+
+## 2026-02-13 - Bugfix tutorial text bubble + mantra animation mapping
+- Fixed tutorial bubble visibility regression:
+  - `frontend/static/css/style.css`: added `.message-bubble.receipt.tutorial-bubble { display: block; }`.
+  - Root cause: bubble DOM existed with text, but `.tutorial-bubble` rule kept it hidden with `display: none`.
+- Fixed narrative step-to-animation mapping:
+  - `frontend/static/js/ui/overlays/tutorial-overlay.js`
+  - Correct mapping now: step 2 -> `mantra-1`, step 3 -> `mantra-2`, step 4+ -> `mantra-3`.
+- Added regression test:
+  - `tests/unit/features/test_feature_tutorial_flow.py::test_feature_tutorial_bubble_text_visible`
+  - Verifies tutorial bubble is visible and contains non-empty text after tutorial reset.
+- Validation:
+  - Full suite: `python -m pytest --tb=short -vv -s` => 30 passed.
+  - Visual bootstrap verify: `python tools/qa/verify_modular_bootstrap.py` => pass.
+  - Additional visual assertion+screenshot for tutorial bubble:
+    - `tools/qa/verify_tutorial_bubble.png` (bubble and text visible).

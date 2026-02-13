@@ -1938,6 +1938,10 @@ body {
     font-weight: 600;
 }
 
+.message-bubble.receipt.tutorial-bubble {
+    display: block;
+}
+
 .message-bubble.receipt::after {
     content: "";
     position: absolute;

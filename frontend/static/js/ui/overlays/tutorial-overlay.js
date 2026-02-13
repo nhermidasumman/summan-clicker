@@ -243,9 +243,10 @@ const TutorialOverlay = (() => {
             document.body.appendChild(container);
         }
 
+        // step mapping: 2->mantra-1, 3->mantra-2, 4+->mantra-3
         let mantraClass = 'mantra-1';
-        if (step === 2) mantraClass = 'mantra-2';
-        if (step === 3) mantraClass = 'mantra-3';
+        if (step === 3) mantraClass = 'mantra-2';
+        if (step >= 4) mantraClass = 'mantra-3';
 
         const existingText = container.querySelector('.mantra-text');
         if (existingText) {
