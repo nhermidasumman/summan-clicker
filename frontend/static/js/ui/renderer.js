@@ -325,8 +325,6 @@ const UI = (() => {
   };
 })();
 
-window.UI = UI;
-
 export const init = UI.init;
 export const setGameApi = UI.setGameApi;
 export const renderAll = UI.renderAll;

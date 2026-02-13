@@ -333,8 +333,6 @@ const Game = (() => {
   };
 })();
 
-window.Game = Game;
-
 export const init = Game.init;
 export const getState = Game.getState;
 export const handleClick = Game.handleClick;

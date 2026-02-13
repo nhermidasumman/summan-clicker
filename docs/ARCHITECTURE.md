@@ -12,5 +12,6 @@
 ## Rules
 - UI must not own economy formulas.
 - Core modules must not mutate DOM directly.
-- Tests must use `window.__SUMMAN_TEST_API__` instead of `window.Game/window.UI`.
+- Tests must use `window.__SUMMAN_TEST_API__`.
+- Runtime does not expose `window.Game`, `window.UI`, or `window.Tutorial`.
 - Runtime imports must point to `app/core/content/ui/infra`; `legacy/` is retired.

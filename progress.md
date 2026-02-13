@@ -93,3 +93,16 @@ Original prompt: Continua
 ## TODO for next pass
 - Continue reducing compatibility globals for `window.Game/window.UI/window.Tutorial` once external automation confirms it is safe to remove.
 - Add focused tests for prestige purchase flow (`buyPrestigeUpgrade`) under `tests/unit/core/`.
+
+## 2026-02-13 - Tramo siguiente del plan: retiro de globals de compatibilidad
+- Removed legacy compatibility globals from runtime modules:
+  - `window.Game` export removed from `frontend/static/js/core/game-loop.js`
+  - `window.UI` export removed from `frontend/static/js/ui/renderer.js`
+  - `window.Tutorial` export removed from `frontend/static/js/ui/overlays/tutorial-controller.js`
+- Confirmed public contracts remain intact:
+  - Internal runtime bridge still uses `window.__SUMMAN_GAME_API__` from bootstrap.
+  - Automated testing contract remains `window.__SUMMAN_TEST_API__`.
+- Updated architecture documentation to reflect that runtime no longer exposes those globals.
+- Validation:
+  - `python -m pytest --tb=short -vv -s` => 29 passed.
+  - `python tools/qa/verify_modular_bootstrap.py` => pass, screenshot reviewed.

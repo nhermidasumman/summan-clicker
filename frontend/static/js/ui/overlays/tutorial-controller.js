@@ -156,8 +156,6 @@ const Tutorial = (() => {
   };
 })();
 
-window.Tutorial = Tutorial;
-
 export const init = Tutorial.init;
 export const update = Tutorial.update;
 export const complete = Tutorial.complete;
