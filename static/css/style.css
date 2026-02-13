@@ -1814,3 +1814,175 @@ body {
     .mantra-text { font-size: 3rem; }
     .mantra-3 { font-size: 2rem; }
 }
+
+/* ==========================================================================
+   TUTORIAL V2 (SVG/DOM OVERLAY) ASSETS
+   ========================================================================== */
+
+/* --- ARROW (Erratic Style) --- */
+.arrow-final {
+    fill: none;
+    stroke: var(--green);
+    stroke-width: 8;
+    stroke-linecap: round;
+    filter: url(#turbulence-erratic);
+    stroke-dasharray: 600;
+    animation: grow-final 3s ease-in-out infinite alternate;
+}
+
+@keyframes grow-final {
+    0% { stroke-dashoffset: 600; }
+    100% { stroke-dashoffset: 0; }
+}
+
+/* --- RIPPLE (Wide Style) --- */
+.ripple-final {
+    fill: none;
+    stroke: white;
+    stroke-width: 4;
+    animation: ripple-final 1.5s ease-out infinite;
+    transform-origin: center;
+    position: absolute; /* Vital for overlay positioning */
+    pointer-events: none;
+}
+
+@keyframes ripple-final {
+    0% {
+        transform: translate(-50%, -50%) scale(0.5);
+        opacity: 1;
+        stroke-width: 5;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(3.5);
+        opacity: 0;
+        stroke-width: 0;
+    }
+}
+
+/* --- PULSE (Glitch Text) --- */
+.pulse-v2 {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 2rem;
+    color: white;
+    text-shadow: 2px 0 var(--red), -2px 0 var(--teal);
+    animation: glitch-v2 0.3s infinite;
+    position: absolute;
+    pointer-events: none;
+    z-index: 10001;
+}
+
+@keyframes glitch-v2 {
+    0% { transform: translate(0); }
+    20% { transform: translate(-2px, 2px); }
+    40% { transform: translate(-2px, -2px); }
+    60% { transform: translate(2px, 2px); }
+    80% { transform: translate(2px, -2px); }
+    100% { transform: translate(0); }
+}
+
+/* --- BUBBLE (The Receipt) --- */
+.message-bubble.receipt {
+    background: #fff;
+    color: black;
+    padding: 15px;
+    font-family: 'Courier New', monospace;
+    max-width: 250px;
+    text-align: center;
+    position: fixed; /* Fixed relative to viewport */
+    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.5));
+    z-index: 10002;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.message-bubble.receipt::after {
+    content: "";
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    width: 100%;
+    height: 10px;
+    background: linear-gradient(45deg, transparent 33.333%, #fff 33.333%, #fff 66.667%, transparent 66.667%),
+                linear-gradient(-45deg, transparent 33.333%, #fff 33.333%, #fff 66.667%, transparent 66.667%);
+    background-size: 20px 20px;
+}
+
+/* --- NARRATIVE OVERLAY (Mantra) --- */
+.narrative-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: black;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 10005;
+    overflow: hidden;
+}
+
+.mantra-bg {
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    top: -50%;
+    left: -50%;
+    background: repeating-conic-gradient(#111 0 15deg, #000 15deg 30deg);
+    animation: spin-spiral 20s linear infinite;
+    opacity: 0.5;
+    z-index: 0;
+}
+
+.mantra-text {
+    z-index: 10;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+.mantra-1 {
+    font-family: 'Inter', sans-serif;
+    font-weight: 900;
+    font-size: 2rem;
+    color: white;
+    letter-spacing: 5px;
+    animation: hypnotize 2s ease-in-out infinite alternate;
+}
+
+.mantra-2 {
+    font-family: 'Inter', sans-serif;
+    font-weight: 900;
+    font-size: 3.5rem;
+    color: var(--orange);
+    letter-spacing: 8px;
+    text-shadow: 0 0 10px var(--orange);
+    animation: hypnotize 1.5s ease-in-out infinite alternate;
+}
+
+.mantra-3 {
+    font-family: 'Inter', sans-serif;
+    font-weight: 900;
+    font-size: 5rem; /* Slightly smaller for mobile safety */
+    color: var(--red);
+    letter-spacing: 10px;
+    text-shadow: 0 0 20px var(--red);
+    animation: hypnotize 1s ease-in-out infinite alternate, violent-shake 0.1s linear infinite;
+}
+
+@keyframes spin-spiral {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes hypnotize {
+    from { transform: scale(1); }
+    to { transform: scale(1.2); }
+}
+
+@keyframes violent-shake {
+    0% { transform: translate(2px, 2px) rotate(0deg); }
+    25% { transform: translate(-2px, -2px) rotate(-1deg); }
+    50% { transform: translate(-2px, 2px) rotate(1deg); }
+    75% { transform: translate(2px, -2px) rotate(0deg); }
+    100% { transform: translate(2px, 2px) rotate(0deg); }
+}
