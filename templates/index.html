@@ -169,6 +169,13 @@
     <script src="/static/js/ui.js"></script>
     <script src="/static/js/rough.js"></script>
     <script src="/static/js/tutorial.js"></script>
+
+    <!-- Versioning -->
+    <script type="module">
+        import { displayVersion } from '/static/js/version.js';
+        window.addEventListener('load', displayVersion);
+    </script>
+
     <script src="/static/js/game.js"></script>
 </body>
 

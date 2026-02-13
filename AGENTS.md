@@ -141,6 +141,22 @@ Before EVERY `git commit`, you MUST complete ALL of these steps IN ORDER:
 - If you're unsure, ASK. The default is to commit only and notify the user.
 
 
+
+---
+
+## Command Execution Guidelines (Windows/Bash Environment)
+
+**CRITICAL:** This project runs in a Windows environment using a Bash terminal. To avoid hanging the agent, allow for non-interactive execution, and prevent conflicts:
+
+1.  **Use Bash Commands:** Prefer `rm`, `cp`, `mv`, `ls` over Windows equivalents (`del`, `copy`, `move`, `dir`). Windows commands like `del` can trigger invisible interactive prompts that hang the agent.
+2.  **No Interactivity:** Always use flags that force non-interactive mode:
+    *   `rm -f` (Force remove, no prompt)
+    *   `cp -f` (Force overwrite)
+    *   `git --no-pager status` (Prevent pager blocking)
+    *   `git --no-pager log`
+3.  **Avoid Command Chaining:** Do not chain complex commands with `&&` if there's a risk of failure or hanging. Execute sequentially.
+4.  **Git Safety:** When running `git` commands that might produce long output, always use `git --no-pager <command>`.
+
 ---
 
 ## Boundaries
