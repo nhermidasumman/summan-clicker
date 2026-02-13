@@ -1,7 +1,9 @@
-﻿export function renderAchievementsPanel(state, elements) {
+﻿import * as Achievements from '../../content/achievements.js';
+
+export function renderAchievementsPanel(state, elements) {
   if (!elements?.achievementsList) return;
 
-  const all = window.Achievements.getAll().slice().sort((a, b) => {
+  const all = Achievements.getAll().slice().sort((a, b) => {
     const aUnlocked = state.achievements.includes(a.id);
     const bUnlocked = state.achievements.includes(b.id);
 
@@ -18,8 +20,8 @@
       <div class="${classes}">
         <div class="ach-icon">${achievement.icon}</div>
         <div class="ach-info">
-          <div class="ach-name">${window.Achievements.getName(achievement)}</div>
-          <div class="ach-desc">${window.Achievements.getDesc(achievement)}</div>
+          <div class="ach-name">${Achievements.getName(achievement)}</div>
+          <div class="ach-desc">${Achievements.getDesc(achievement)}</div>
         </div>
         ${unlocked ? '<div class="ach-check">&#x2713;</div>' : ''}
       </div>

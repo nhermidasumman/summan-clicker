@@ -1,4 +1,7 @@
-﻿let tooltipElement = null;
+﻿import * as Upgrades from '../../content/upgrades.js';
+import * as Utils from '../../infra/number-formatters.js';
+
+let tooltipElement = null;
 let tooltipTimeout = null;
 let overHandler = null;
 let outHandler = null;
@@ -76,7 +79,7 @@ function escapeAttributeValue(value) {
 export function renderUpgradesBar(state, elements) {
   if (!elements?.upgradesList) return;
 
-  const available = window.Upgrades.getAvailable(state).sort((a, b) => a.cost - b.cost);
+  const available = Upgrades.getAvailable(state).sort((a, b) => a.cost - b.cost);
   const container = document.getElementById('upgrades-container');
   const bar = document.getElementById('upgrades-bar') || container;
   const target = container || bar;
@@ -92,7 +95,7 @@ export function renderUpgradesBar(state, elements) {
   let html = '';
   for (const upgrade of available) {
     const canAfford = state.dataPoints >= upgrade.cost;
-    const tooltip = `${window.Upgrades.getName(upgrade)}: ${window.Upgrades.getDesc(upgrade)} - Cost: ${window.Utils.formatNumber(upgrade.cost)}`;
+    const tooltip = `${Upgrades.getName(upgrade)}: ${Upgrades.getDesc(upgrade)} - Cost: ${Utils.formatNumber(upgrade.cost)}`;
 
     html += `
       <div class="upgrade-tile ${canAfford ? 'affordable' : 'locked'}"
@@ -100,7 +103,7 @@ export function renderUpgradesBar(state, elements) {
            data-action="buy-upgrade"
            data-tooltip="${escapeAttributeValue(tooltip)}">
         <div class="upgrade-tile-icon">${upgrade.icon}</div>
-        <div class="upgrade-tile-cost">${window.Utils.formatNumber(upgrade.cost)}</div>
+        <div class="upgrade-tile-cost">${Utils.formatNumber(upgrade.cost)}</div>
       </div>
     `;
   }
@@ -115,7 +118,7 @@ export function updateUpgradeAffordability(state, elements) {
 
   for (const item of list.querySelectorAll('.upgrade-tile')) {
     const id = item.dataset.upgrade;
-    const upgrade = window.Upgrades.getById(id);
+    const upgrade = Upgrades.getById(id);
     if (!upgrade) continue;
 
     const canAfford = state.dataPoints >= upgrade.cost;

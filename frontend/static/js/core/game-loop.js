@@ -44,6 +44,27 @@ const Game = (() => {
   let nextGoldenDataTime = 0;
   let nextRandomEventTime = 0;
 
+  function getRuntimeApi() {
+    return {
+      getState,
+      handleClick,
+      buyBuilding,
+      buyUpgrade,
+      buyPrestigeUpgrade,
+      performPrestige,
+      setBuyAmount,
+      setLanguage,
+      manualSave,
+      exportSave,
+      importSave,
+      resetGame,
+      getInnovationPointsPreview: getInnovationPointsPreviewForState,
+      recalculateDps,
+      calculateClickValue,
+      getBuildingDiscount,
+    };
+  }
+
   function init() {
     const savedState = SaveSystem.load();
     if (savedState) {
@@ -55,6 +76,9 @@ const Game = (() => {
     }
 
     recalculateDps();
+    const runtimeApi = getRuntimeApi();
+    UI.setGameApi(runtimeApi);
+    Tutorial.setGameApi(runtimeApi);
     UI.init(state);
     UI.renderAll(state);
 

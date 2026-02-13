@@ -1,4 +1,6 @@
-﻿import * as Utils from '../../infra/number-formatters.js';
+﻿import * as Achievements from '../../content/achievements.js';
+import * as Lang from '../../content/i18n/index.js';
+import * as Utils from '../../infra/number-formatters.js';
 
 export function createUiFeedback({ elements, getState, renderAchievements, showModal }) {
   let achievementQueue = [];
@@ -21,12 +23,12 @@ export function createUiFeedback({ elements, getState, renderAchievements, showM
     const achievement = achievementQueue.shift();
     isShowingAchievement = true;
 
-    const title = window.Lang.getLanguage() === 'en' ? 'Achievement!' : 'Logro!';
+    const title = Lang.getLanguage() === 'en' ? 'Achievement!' : 'Logro!';
     popup.innerHTML = `
       <div class="ach-popup-icon">${achievement.icon}</div>
       <div class="ach-popup-info">
         <div class="ach-popup-title">${title}</div>
-        <div class="ach-popup-name">${window.Achievements.getName(achievement)}</div>
+        <div class="ach-popup-name">${Achievements.getName(achievement)}</div>
       </div>
     `;
 
@@ -78,7 +80,7 @@ export function createUiFeedback({ elements, getState, renderAchievements, showM
     if (!element) return;
 
     element.classList.add('visible');
-    element.innerHTML = `<span>&#x1F41B;</span><span>${window.Lang.t('event_bug_report_desc')}</span>`;
+    element.innerHTML = `<span>&#x1F41B;</span><span>${Lang.t('event_bug_report_desc')}</span>`;
 
     const handleClick = () => {
       element.classList.remove('visible');
@@ -98,13 +100,13 @@ export function createUiFeedback({ elements, getState, renderAchievements, showM
     const html = `
       <div class="offline-progress">
         <div class="offline-icon">&#x1F319;</div>
-        <p>${window.Lang.t('offline_earned')}</p>
-        <div class="offline-amount">+${window.Utils.formatNumber(dataEarned)} Data Points</div>
-        <p class="offline-time">(${window.Utils.formatTime(secondsAway)})</p>
+        <p>${Lang.t('offline_earned')}</p>
+        <div class="offline-amount">+${Utils.formatNumber(dataEarned)} Data Points</div>
+        <p class="offline-time">(${Utils.formatTime(secondsAway)})</p>
       </div>
     `;
 
-    showModal?.(window.Lang.t('offline_progress'), html);
+    showModal?.(Lang.t('offline_progress'), html);
   }
 
   function showPrestigeAnimation() {
@@ -141,8 +143,8 @@ export function createUiFeedback({ elements, getState, renderAchievements, showM
   }
 
   function showSaveIndicator() {
-    const message = window.Lang.getLanguage() === 'en' ? 'Game saved' : 'Juego guardado';
-    window.Utils.showToast(message, 'success', 2000);
+    const message = Lang.getLanguage() === 'en' ? 'Game saved' : 'Juego guardado';
+    Utils.showToast(message, 'success', 2000);
   }
 
   return {

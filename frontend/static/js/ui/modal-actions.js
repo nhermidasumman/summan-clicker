@@ -1,20 +1,27 @@
-﻿function handlePrestige(closeModal) {
-  if (!confirm(window.Lang.t('confirm_prestige'))) return;
-  window.__SUMMAN_GAME_API__.performPrestige();
+﻿import * as Lang from '../content/i18n/index.js';
+import * as Utils from '../infra/number-formatters.js';
+
+function handlePrestige(gameApi, closeModal) {
+  if (!gameApi) return;
+  if (!confirm(Lang.t('confirm_prestige'))) return;
+  gameApi.performPrestige();
   closeModal();
 }
 
-function handleReset(closeModal) {
-  if (!confirm(window.Lang.t('confirm_reset'))) return;
-  window.__SUMMAN_GAME_API__.resetGame();
+function handleReset(gameApi, closeModal) {
+  if (!gameApi) return;
+  if (!confirm(Lang.t('confirm_reset'))) return;
+  gameApi.resetGame();
   closeModal();
 }
 
-function handleExport() {
-  const save = window.__SUMMAN_GAME_API__.exportSave();
+function handleExport(gameApi) {
+  if (!gameApi) return;
+
+  const save = gameApi.exportSave();
   if (!save) return;
 
-  const copyPrompt = window.Lang.getLanguage() === 'en'
+  const copyPrompt = Lang.getLanguage() === 'en'
     ? 'Copy your save data:'
     : 'Copia tus datos de guardado:';
 
@@ -24,49 +31,51 @@ function handleExport() {
   }
 
   navigator.clipboard.writeText(save).then(() => {
-    const copiedMessage = window.Lang.getLanguage() === 'en'
+    const copiedMessage = Lang.getLanguage() === 'en'
       ? 'Save copied to clipboard!'
       : 'Guardado copiado al portapapeles!';
-    window.Utils.showToast(copiedMessage, 'info', 3000);
+    Utils.showToast(copiedMessage, 'info', 3000);
   }).catch(() => {
     prompt(copyPrompt, save);
   });
 }
 
-function handleImport(closeModal) {
-  const importPrompt = window.Lang.getLanguage() === 'en'
+function handleImport(gameApi, closeModal) {
+  if (!gameApi) return;
+
+  const importPrompt = Lang.getLanguage() === 'en'
     ? 'Paste save data:'
     : 'Pega los datos de guardado:';
 
   const data = prompt(importPrompt);
   if (!data) return;
 
-  window.__SUMMAN_GAME_API__.importSave(data);
+  gameApi.importSave(data);
   closeModal();
 }
 
 export function handleModalAction(actionElement, callbacks = {}) {
   if (!actionElement) return;
 
-  const action = actionElement.dataset.action;
+  const gameApi = callbacks.gameApi;
   const closeModal = callbacks.onCloseModal || (() => {});
 
-  switch (action) {
+  switch (actionElement.dataset.action) {
     case 'set-language':
-      window.__SUMMAN_GAME_API__.setLanguage(actionElement.dataset.lang);
+      gameApi?.setLanguage(actionElement.dataset.lang);
       callbacks.onRefreshSettings?.();
       break;
     case 'export-save':
-      handleExport();
+      handleExport(gameApi);
       break;
     case 'import-save':
-      handleImport(closeModal);
+      handleImport(gameApi, closeModal);
       break;
     case 'reset-game':
-      handleReset(closeModal);
+      handleReset(gameApi, closeModal);
       break;
     case 'perform-prestige':
-      handlePrestige(closeModal);
+      handlePrestige(gameApi, closeModal);
       break;
     default:
       break;

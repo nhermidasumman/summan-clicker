@@ -1,4 +1,7 @@
-﻿import { bindDomEvents } from './dom-bindings.js';
+﻿import * as Lang from '../content/i18n/index.js';
+import * as Utils from '../infra/number-formatters.js';
+
+import { bindDomEvents } from './dom-bindings.js';
 import { handleModalAction } from './modal-actions.js';
 import { renderActiveEffectsBar } from './overlays/effects-bar.js';
 import { createUiFeedback } from './overlays/ui-feedback.js';
@@ -19,11 +22,15 @@ import { createPrestigeModal } from './panels/prestige-modal.js';
 const INNOVATION_ICON = '\u2728';
 
 const UI = (() => {
+  let gameApi = null;
   let elements = {};
-  let currentTab = 'buildings';
   let activePanel = null;
   let feedback = null;
   let areEventsBound = false;
+
+  function setGameApi(api) {
+    gameApi = api;
+  }
 
   function init(state) {
     cacheElements();
@@ -31,7 +38,7 @@ const UI = (() => {
     if (!feedback) {
       feedback = createUiFeedback({
         elements,
-        getState: () => window.__SUMMAN_GAME_API__.getState(),
+        getState: () => gameApi?.getState?.() || null,
         renderAchievements: (currentState) => renderAchievements(currentState),
         showModal,
       });
@@ -39,25 +46,26 @@ const UI = (() => {
 
     if (!areEventsBound) {
       bindDomEvents(elements, {
-        onClickTarget: (x, y) => window.__SUMMAN_GAME_API__.handleClick(x, y),
+        onClickTarget: (x, y) => gameApi?.handleClick?.(x, y),
         onSwitchTab: switchTab,
         onSetBuyAmount: (amount) => {
           updateBuyButtons(amount);
-          window.__SUMMAN_GAME_API__.setBuyAmount(amount);
+          gameApi?.setBuyAmount?.(amount);
         },
         onShowStats: showStatsModal,
         onShowSettings: showSettingsModal,
         onShowPrestige: showPrestigeModal,
         onCloseModal: closeModal,
-        onBuyBuilding: (buildingId) => window.__SUMMAN_GAME_API__.buyBuilding(buildingId),
-        onBuyUpgrade: (upgradeId) => window.__SUMMAN_GAME_API__.buyUpgrade(upgradeId),
+        onBuyBuilding: (buildingId) => gameApi?.buyBuilding?.(buildingId),
+        onBuyUpgrade: (upgradeId) => gameApi?.buyUpgrade?.(upgradeId),
         onModalAction: (actionElement) => {
           handleModalAction(actionElement, {
+            gameApi,
             onCloseModal: closeModal,
             onRefreshSettings: showSettingsModal,
           });
         },
-        onManualSave: () => window.__SUMMAN_GAME_API__.manualSave(),
+        onManualSave: () => gameApi?.manualSave?.(),
       });
       areEventsBound = true;
     }
@@ -129,8 +137,11 @@ const UI = (() => {
   }
 
   function showStatsModal() {
-    const state = window.__SUMMAN_GAME_API__.getState();
-    const modal = createStatsModal(state);
+    const state = gameApi?.getState?.();
+    if (!state) return;
+    const modal = createStatsModal(state, {
+      calculateClickValue: () => gameApi?.calculateClickValue?.() || 1,
+    });
     showModal(modal.title, modal.html);
   }
 
@@ -140,14 +151,12 @@ const UI = (() => {
   }
 
   function showPrestigeModal() {
-    const preview = window.__SUMMAN_GAME_API__.getInnovationPointsPreview();
+    const preview = gameApi?.getInnovationPointsPreview?.() || 0;
     const modal = createPrestigeModal(preview);
     showModal(modal.title, modal.html);
   }
 
   function switchTab(tab) {
-    currentTab = tab;
-
     for (const button of document.querySelectorAll('.tab-btn')) {
       button.classList.remove('active');
     }
@@ -171,16 +180,16 @@ const UI = (() => {
 
   function update(state) {
     if (elements.dataCounter) {
-      elements.dataCounter.textContent = window.Utils.formatNumber(state.dataPoints);
+      elements.dataCounter.textContent = Utils.formatNumber(state.dataPoints);
     }
 
     if (elements.dpsDisplay) {
-      elements.dpsDisplay.textContent = `${window.Utils.formatDps(state.dps)} ${window.Lang.t('per_second')}`;
+      elements.dpsDisplay.textContent = `${Utils.formatDps(state.dps)} ${Lang.t('per_second')}`;
     }
 
     if (elements.clickPowerDisplay) {
-      const clickValue = window.__SUMMAN_GAME_API__.calculateClickValue();
-      elements.clickPowerDisplay.textContent = `${window.Utils.formatDps(clickValue)} ${window.Lang.t('click_power')}`;
+      const clickValue = gameApi?.calculateClickValue?.() || 1;
+      elements.clickPowerDisplay.textContent = `${Utils.formatDps(clickValue)} ${Lang.t('click_power')}`;
     }
 
     if (elements.innovationDisplay) {
@@ -195,11 +204,11 @@ const UI = (() => {
     updateUpgradeAffordability(state);
     renderActiveEffects(state);
 
-    const previewPoints = window.__SUMMAN_GAME_API__.getInnovationPointsPreview();
+    const previewPoints = gameApi?.getInnovationPointsPreview?.() || 0;
     if (elements.btnPrestige) {
       if (previewPoints > 0) {
         elements.btnPrestige.classList.add('has-points');
-        elements.btnPrestige.title = `+${previewPoints} ${window.Lang.t('innovation_points')}`;
+        elements.btnPrestige.title = `+${previewPoints} ${Lang.t('innovation_points')}`;
       } else {
         elements.btnPrestige.classList.remove('has-points');
       }
@@ -207,11 +216,15 @@ const UI = (() => {
   }
 
   function renderBuildings(state) {
-    renderBuildingsPanel(state, elements);
+    renderBuildingsPanel(state, elements, {
+      getBuildingDiscount: () => gameApi?.getBuildingDiscount?.() || 1,
+    });
   }
 
   function updateBuildingAffordability(state) {
-    updateBuildingAffordabilityPanel(state, elements);
+    updateBuildingAffordabilityPanel(state, elements, {
+      getBuildingDiscount: () => gameApi?.getBuildingDiscount?.() || 1,
+    });
   }
 
   function renderUpgrades(state) {
@@ -262,11 +275,11 @@ const UI = (() => {
   }
 
   function createParticle(x, y, text, color) {
-    window.Utils.createParticle(x, y, text, color);
+    Utils.createParticle(x, y, text, color);
   }
 
   function showToast(message, type, duration) {
-    window.Utils.showToast(message, type, duration);
+    Utils.showToast(message, type, duration);
   }
 
   function showSaveIndicator() {
@@ -275,20 +288,21 @@ const UI = (() => {
 
   function updateAllText() {
     const title = document.getElementById('game-title');
-    if (title) title.textContent = window.Lang.t('game_title');
+    if (title) title.textContent = Lang.t('game_title');
 
     const subtitle = document.getElementById('game-subtitle');
-    if (subtitle) subtitle.textContent = window.Lang.t('game_subtitle');
+    if (subtitle) subtitle.textContent = Lang.t('game_subtitle');
 
     const buildingsTab = document.getElementById('tab-buildings');
-    if (buildingsTab) buildingsTab.innerHTML = `&#x1F3ED; ${window.Lang.t('buildings')}`;
+    if (buildingsTab) buildingsTab.innerHTML = `&#x1F3ED; ${Lang.t('buildings')}`;
 
     const achievementsTab = document.getElementById('tab-achievements');
-    if (achievementsTab) achievementsTab.innerHTML = `&#x1F3C6; ${window.Lang.t('achievements')}`;
+    if (achievementsTab) achievementsTab.innerHTML = `&#x1F3C6; ${Lang.t('achievements')}`;
   }
 
   return {
     init,
+    setGameApi,
     renderAll,
     update,
     renderBuildings,
@@ -314,6 +328,7 @@ const UI = (() => {
 window.UI = UI;
 
 export const init = UI.init;
+export const setGameApi = UI.setGameApi;
 export const renderAll = UI.renderAll;
 export const update = UI.update;
 export const renderBuildings = UI.renderBuildings;

@@ -69,3 +69,27 @@ Original prompt: Continua
 - Continue reducing remaining `window.*` compatibility globals by introducing direct imports/service injection inside UI panels/content modules.
 - Consider splitting `core/game-loop.js` once more into `runtime-loop` vs `session-lifecycle` files if we want stricter architectural boundaries.
 - Add targeted unit tests for the new `core/progression-system.js` and `core/achievement-system.js` modules (currently covered mostly by e2e/feature tests).
+
+## 2026-02-13 - Hardening pass: internal DI + core unit tests
+- Removed most runtime `window.*` coupling inside UI/core modules by switching to explicit imports and API injection.
+- Added internal runtime API bridge from `core/game-loop.js` into UI/tutorial layers:
+  - `ui/renderer.js` now exposes `setGameApi(api)` and no longer depends on `window.__SUMMAN_GAME_API__` internally.
+  - `ui/overlays/tutorial-controller.js` now exposes `setGameApi(api)` and reads state from injected API.
+- Refactored modules to use direct imports instead of globals:
+  - `ui/panels/buildings-panel.js` now imports `Buildings/Lang/Utils` and receives `getBuildingDiscount` via options.
+  - `ui/panels/upgrades-bar.js` now imports `Upgrades/Utils`.
+  - `ui/panels/achievements-panel.js` now imports `Achievements`.
+  - `ui/panels/stats-modal.js` now imports `Lang/Utils/Upgrades` and receives `calculateClickValue` via options.
+  - `ui/panels/settings-modal.js` and `ui/panels/prestige-modal.js` now import `Lang`.
+  - `ui/modal-actions.js` now imports `Lang/Utils` and acts on injected `gameApi`.
+  - `ui/overlays/ui-feedback.js` now imports `Lang/Utils/Achievements`.
+- Added targeted tests for the newly extracted core systems:
+  - `tests/unit/core/test_progression_system.py`
+  - `tests/unit/core/test_achievement_system.py`
+- Validation:
+  - `python -m pytest --tb=short -vv -s` => 29 passed.
+  - `python tools/qa/verify_modular_bootstrap.py` => pass + screenshot reviewed.
+
+## TODO for next pass
+- Continue reducing compatibility globals for `window.Game/window.UI/window.Tutorial` once external automation confirms it is safe to remove.
+- Add focused tests for prestige purchase flow (`buyPrestigeUpgrade`) under `tests/unit/core/`.
