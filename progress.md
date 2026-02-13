@@ -122,3 +122,23 @@ Original prompt: Continua
   - Visual bootstrap verify: `python tools/qa/verify_modular_bootstrap.py` => pass.
   - Additional visual assertion+screenshot for tutorial bubble:
     - `tools/qa/verify_tutorial_bubble.png` (bubble and text visible).
+
+## 2026-02-13 - Tutorial bubble auto-sizing and positioning refinement
+- Updated tutorial bubble layout engine in `frontend/static/js/ui/overlays/tutorial-overlay.js`:
+  - Bubble text now uses `textContent` (safe plain text).
+  - Added dynamic sizing each frame based on text and viewport (`maxWidth`, wrapping, auto height).
+  - Added explicit viewport clamping and type-aware anchoring (`orb`, `intern`, `dps`) with consistent gaps.
+  - Bubble position now recalculates after sizing, so location aligns with actual rendered text dimensions.
+- Updated CSS in `frontend/static/css/style.css`:
+  - Keep tutorial receipt visible (`display: block`).
+  - Disabled tutorial receipt tear pseudo-element (`::after`) so bubble visual box matches measured text box.
+- Expanded regression coverage in `tests/unit/features/test_feature_tutorial_flow.py`:
+  - `test_feature_tutorial_bubble_text_visible` now verifies:
+    - visible bubble,
+    - non-empty text,
+    - text fits within bubble,
+    - bubble remains in viewport,
+    - bubble remains anchored near target.
+- Validation:
+  - Full suite: `python -m pytest --tb=short -vv -s` => 30 passed.
+  - Visual checks: `tools/qa/verify_modular_bootstrap.png` and `tools/qa/verify_tutorial_bubble_layout.png`.

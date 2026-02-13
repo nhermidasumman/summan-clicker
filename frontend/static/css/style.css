@@ -1942,6 +1942,10 @@ body {
     display: block;
 }
 
+.message-bubble.receipt.tutorial-bubble::after {
+    display: none;
+}
+
 .message-bubble.receipt::after {
     content: "";
     position: absolute;

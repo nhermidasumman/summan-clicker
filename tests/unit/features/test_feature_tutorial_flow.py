@@ -36,13 +36,37 @@ def test_feature_tutorial_bubble_text_visible(page: Page):
     result = page.evaluate("""
         () => {
             const bubble = document.querySelector('.tutorial-bubble');
-            if (!bubble) return { visible: false, text: '' };
+            const target = document.getElementById('click-orb');
+            if (!bubble || !target) {
+                return { visible: false, text: '', fitsText: false, inViewport: false, anchored: false };
+            }
 
             const style = window.getComputedStyle(bubble);
             const visible = style.display !== 'none' && style.visibility !== 'hidden' && parseFloat(style.opacity || '1') > 0;
-            return { visible, text: (bubble.textContent || '').trim() };
+            const rect = bubble.getBoundingClientRect();
+            const targetRect = target.getBoundingClientRect();
+
+            const fitsText = bubble.scrollWidth <= bubble.clientWidth + 1
+              && bubble.scrollHeight <= bubble.clientHeight + 1;
+
+            const inViewport = rect.left >= 0
+              && rect.top >= 0
+              && rect.right <= window.innerWidth
+              && rect.bottom <= window.innerHeight;
+
+            const anchored = Math.abs((rect.left + rect.width / 2) - (targetRect.left + targetRect.width / 2)) < 220;
+            return {
+                visible,
+                text: (bubble.textContent || '').trim(),
+                fitsText,
+                inViewport,
+                anchored
+            };
         }
     """)
 
     assert result['visible'] is True
     assert len(result['text']) > 0
+    assert result['fitsText'] is True
+    assert result['inViewport'] is True
+    assert result['anchored'] is True

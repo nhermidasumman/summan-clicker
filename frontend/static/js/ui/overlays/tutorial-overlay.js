@@ -13,6 +13,8 @@ const TutorialOverlay = (() => {
     let bubbleEl = null;
 
     const SVG_NS = "http://www.w3.org/2000/svg";
+    const BUBBLE_VIEWPORT_MARGIN = 12;
+    const BUBBLE_GAP = 18;
 
     function init() {
         if (document.getElementById('tutorial-layer')) return;
@@ -127,7 +129,7 @@ const TutorialOverlay = (() => {
         if (text) {
             bubbleEl = document.createElement('div');
             bubbleEl.className = 'message-bubble receipt tutorial-bubble';
-            bubbleEl.innerHTML = text;
+            bubbleEl.textContent = text;
             document.body.appendChild(bubbleEl); // Attach to body for z-index
         }
 
@@ -200,35 +202,58 @@ const TutorialOverlay = (() => {
 
         // --- Bubble Logic ---
         if (bubbleEl) {
-            // Update text if changed
-            if (bubbleEl.innerHTML !== text) bubbleEl.innerHTML = text;
-
-            const bRect = bubbleEl.getBoundingClientRect();
-            let top, left;
-            const gap = 15;
-
-            // Default bottom
-            top = rect.bottom + gap;
-            left = rect.left + (rect.width / 2) - (bRect.width / 2);
-
-            // Adjust for types
-            if (type === 'orb') {
-                top = rect.bottom + 150; // Below arrow
-                left = rect.left + rect.width / 2 - bRect.width / 2;
-            } else if (type === 'intern') {
-                top = rect.bottom + 20;
-                left = rect.left;
-            }
-
-            // Screen boundaries
-            if (left < 10) left = 10;
-            if (left + bRect.width > window.innerWidth - 10) left = window.innerWidth - bRect.width - 10;
-            if (top < 10) top = 10;
-            if (top + bRect.height > window.innerHeight) top = rect.top - bRect.height - 10; // Flip to top if no space
-
-            bubbleEl.style.top = `${top}px`;
-            bubbleEl.style.left = `${left}px`;
+            applyBubbleLayout(bubbleEl, rect, type, text || "");
         }
+    }
+
+    function applyBubbleLayout(bubble, targetRect, type, text) {
+        if (bubble.textContent !== text) {
+            bubble.textContent = text;
+        }
+
+        const maxWidth = Math.max(220, Math.min(460, window.innerWidth - (BUBBLE_VIEWPORT_MARGIN * 2)));
+        bubble.style.maxWidth = `${maxWidth}px`;
+        bubble.style.width = 'max-content';
+        bubble.style.height = 'auto';
+        bubble.style.whiteSpace = 'normal';
+        bubble.style.wordBreak = 'break-word';
+        bubble.style.overflowWrap = 'anywhere';
+        bubble.style.visibility = 'hidden';
+        bubble.style.left = '0px';
+        bubble.style.top = '0px';
+
+        const box = bubble.getBoundingClientRect();
+        const bubbleWidth = Math.ceil(box.width);
+        const bubbleHeight = Math.ceil(box.height);
+
+        let left = targetRect.left + (targetRect.width / 2) - (bubbleWidth / 2);
+        let top = targetRect.bottom + BUBBLE_GAP;
+
+        if (type === 'intern') {
+            left = targetRect.left;
+            top = targetRect.bottom + BUBBLE_GAP;
+        } else if (type === 'dps') {
+            left = targetRect.right + BUBBLE_GAP;
+            top = targetRect.top + (targetRect.height / 2) - (bubbleHeight / 2);
+        }
+
+        if (left + bubbleWidth > window.innerWidth - BUBBLE_VIEWPORT_MARGIN) {
+            left = window.innerWidth - bubbleWidth - BUBBLE_VIEWPORT_MARGIN;
+        }
+        if (left < BUBBLE_VIEWPORT_MARGIN) {
+            left = BUBBLE_VIEWPORT_MARGIN;
+        }
+
+        if (top + bubbleHeight > window.innerHeight - BUBBLE_VIEWPORT_MARGIN) {
+            top = targetRect.top - bubbleHeight - BUBBLE_GAP;
+        }
+        if (top < BUBBLE_VIEWPORT_MARGIN) {
+            top = BUBBLE_VIEWPORT_MARGIN;
+        }
+
+        bubble.style.left = `${Math.round(left)}px`;
+        bubble.style.top = `${Math.round(top)}px`;
+        bubble.style.visibility = 'visible';
     }
 
     function showNarrative(text, step) {
