@@ -1,185 +1,196 @@
-# AGENTS.md — Summan Data Clicker
+﻿# AGENTS.md - Summan Data Clicker
 
-> This file provides instructions for AI coding agents working on this project.
-> It follows the [AGENTS.md open standard](https://agents.md).
-
----
-
-## Project Overview
-
-**Summan Data Clicker** is a browser-based incremental/clicker game themed around the company Summan (a consulting firm). Players click to generate "data points," purchase buildings that auto-generate data, buy upgrades, earn achievements, and prestige for innovation points. The game supports Spanish and English.
+This file defines mandatory instructions for AI coding agents working in this repository.
 
 ---
 
-## Tech Stack
+## Project Summary
 
-| Layer      | Technology                       |
-|------------|----------------------------------|
-| Backend    | Python 3.10+, FastAPI, Uvicorn   |
-| Frontend   | Vanilla HTML/CSS/JavaScript (no framework) |
-| Storage    | LocalStorage (browser-side)      |
-| Testing    | pytest + Playwright (browser)    |
-| Hosting    | Render (auto-deploy from `main`) |
-| VCS        | Git (GitHub)                     |
+Summan Data Clicker is a browser incremental game served by FastAPI.
+Players generate Data Points via clicking and automation, buy buildings and upgrades,
+unlock achievements, and use prestige (innovation points).
+The game supports Spanish and English.
 
 ---
 
-## Project Structure
+## Current Architecture (Source of Truth)
 
-```
+```text
 summan-clicker/
-├── main.py                 # FastAPI server entry point
-├── requirements.txt        # Production dependencies
-├── requirements-dev.txt    # Dev/test dependencies
-├── templates/
-│   └── index.html          # Single-page game HTML
-├── static/
-│   ├── css/style.css       # All styles
-│   ├── js/
-│   │   ├── game.js         # Core game loop, state, save/load
-│   │   ├── ui.js           # DOM rendering and interactions
-│   │   ├── buildings.js    # Building definitions and cost functions
-│   │   ├── upgrades.js     # Upgrade definitions and unlock logic
-│   │   ├── achievements.js # Achievement definitions
-│   │   ├── prestige.js     # Prestige/innovation system
-│   │   ├── lang.js         # i18n (ES/EN)
-│   │   └── utils.js        # Formatting, math helpers
-│   ├── manifest.json
-│   └── icons/
-├── test_*.py               # Playwright test files
-└── .agent/workflows/       # Agent workflow definitions
+  backend/
+    app.py
+    routes.py
+    config.py
+  frontend/
+    templates/
+      index.html
+    static/
+      css/
+        style.css
+      js/
+        app/
+          main.js
+          bootstrap.js
+          version.js
+        core/
+          game-loop.js
+          economy.js
+          progression-system.js
+          effects-system.js
+          event-system.js
+          state-store.js
+        content/
+          buildings.js
+          upgrades.js
+          achievements.js
+          prestige-upgrades.js
+          i18n/
+            index.js
+            es.js
+            en.js
+        ui/
+          renderer.js
+          dom-bindings.js
+          panels/
+          overlays/
+        infra/
+          constants.js
+          logger.js
+          number-formatters.js
+          save-repository.js
+          save-migrations.js
+        test-api/
+          browser-test-api.js
+  tests/
+    unit/
+    contract/
+    e2e/
+    visual/
+  docs/
+    ARCHITECTURE.md
+    FEATURE_PLAYBOOK.md
+    TESTING.md
+    SAVE_SCHEMA.md
+  tools/
+    qa/
+  main.py
 ```
+
+Important:
+- `frontend/static/js/legacy/` is retired and must not be reintroduced.
+- Runtime starts from `frontend/static/js/app/main.js` only.
+- Browser automation contract is `window.__SUMMAN_TEST_API__`.
 
 ---
 
-## Setup & Run
+## Mandatory Context Loading (No Exceptions)
+
+Before making any code change, read these files in order:
+
+1. `README.md`
+2. `docs/ARCHITECTURE.md`
+3. `docs/FEATURE_PLAYBOOK.md`
+4. `docs/TESTING.md`
+5. `docs/SAVE_SCHEMA.md`
+6. `progress.md` (if present)
+7. `frontend/templates/index.html`
+8. `frontend/static/js/app/main.js`
+9. `frontend/static/js/app/bootstrap.js`
+10. `frontend/static/js/test-api/browser-test-api.js`
+
+Then inspect the specific modules you will touch.
+If your change affects gameplay formulas or progression, also read:
+- `frontend/static/js/core/game-loop.js`
+- `frontend/static/js/content/*.js`
+
+If your change affects UI/UX, also read:
+- `frontend/static/js/ui/renderer.js`
+- relevant files under `frontend/static/js/ui/panels/` and `frontend/static/js/ui/overlays/`
+- `frontend/static/css/style.css`
+
+---
+
+## Setup and Run
 
 ```bash
-# Install dependencies
 pip install -r requirements.txt
 pip install -r requirements-dev.txt
-
-# Run the server locally
 uvicorn main:app --host 127.0.0.1 --port 8000
-
-# Run all tests (server must be running on port 8000)
 python -m pytest --tb=short -vv -s
 ```
 
----
-
-## Code Conventions
-
-- **Language:** JavaScript (ES6+, IIFE module pattern). No transpilation, no bundler.
-- **Module pattern:** Each JS file exports a single global object via IIFE (e.g., `window.UI = (() => { ... })();`).
-- **Naming:** `camelCase` for functions/variables, `UPPER_SNAKE` for constants.
-- **CSS:** Vanilla CSS with CSS custom properties (variables). No preprocessors.
-- **HTML:** Single-page app in `templates/index.html`. Jinja2 templating via FastAPI.
-- **i18n:** All user-facing strings go through `Lang.t('key')` or conditional `Lang.getLanguage() === 'es'`.
-- **Numbers:** Always use `Utils.formatNumber()` for display. It handles suffixes (K, M, B, T, etc.).
-- **State access:** Use `Game.getState()` to read state. Use exported functions (e.g., `Game.buyBuilding()`) for mutations.
-- **Save:** Use `Game.manualSave()` (NOT `Game.save()` — that is not exported).
+Base URL: `http://127.0.0.1:8000`
 
 ---
 
-### UI & Canvas Guidelines
-- **Visual Validation (CRITICAL):** Do not assume your code works just because the logic seems correct. You MUST access the game (via browser or verification script) and visually confirm that the element looks right (e.g., text fits inside container, alignment is perfect). If the output doesn't match a user's reasonable expectation, fix it *before* asking for review.
-- **Dynamic Sizing**: Never hardcode container dimensions for text. Calculate width/height based on text metrics (`ctx.measureText`) plus adequate padding (min 20px).
-- **Coordinate Precision**: Always round drawing coordinates (`Math.round`) to integer values to prevent sub-pixel rendering artifacts (blurriness).
-- **Text Safety**: When mixing Rough.js (sketchy style) with text:
-    - Increase padding (e.g. 30px) to prevent sketchy borders from overlapping text.
-    - Reduce `roughness` (e.g. 0.5) for containers to ensure cleaner edges significantly improve legibility.
-- **Context Management**: Always wrap canvas operations in `ctx.save()` and `ctx.restore()` to prevent style leakage.
-- **Responsiveness**: Ensure UI elements (like bubbles) are positioned relative to their target but with safe margins to avoid screen edge clipping.
+## Engineering Rules
+
+### JavaScript and Frontend
+- Use ES modules.
+- Keep logic separated by layer (`core`, `content`, `ui`, `infra`, `app`).
+- Do not introduce inline handlers in HTML.
+- Escape HTML attributes when rendering dynamic `innerHTML`.
+- Keep upgrade rendering sorted by ascending cost.
+- Keep ES and EN support for user-facing text.
+
+### Public Contracts
+- Tests and automation must use `window.__SUMMAN_TEST_API__`.
+- Do not make tests depend on direct runtime globals such as `window.Game` or `window.UI`.
+- Save key must remain `summan_clicker_save`.
+- Save schema version is currently `2`; maintain backward compatibility through migrations.
+
+### Gameplay Safety
+Do not change gameplay behavior unintentionally.
+Protect these invariants:
+- Buy modes (`x1`, `x10`, `x100`, `Max`) produce expected quantities and costs.
+- DPS/click formulas remain stable unless explicitly requested.
+- Prestige formula and reset behavior remain stable unless explicitly requested.
+- Existing saves must continue loading.
 
 ---
 
-## Testing
+## Testing and Validation (Mandatory)
 
-- **Framework:** pytest + playwright
-- **Location:** `test_*.py` files in project root
-- **Base URL:** `http://127.0.0.1:8000` (server must be running)
-- **Pattern:** Each test navigates to the game, sets up state via `page.evaluate()`, and asserts DOM state.
-- **Important:** Use `page.reload()` (NOT `location.reload()` in evaluate) to avoid execution context errors.
-- **Wait:** Always `page.wait_for_timeout(1500)` after reload to let the game render.
+After every meaningful change:
 
----
+1. Run full test suite:
+   `python -m pytest --tb=short -vv -s`
+2. Ensure all tests pass.
+3. Run visual verification script:
+   `python tools/qa/verify_modular_bootstrap.py`
+4. Inspect screenshot output:
+   `tools/qa/verify_modular_bootstrap.png`
 
-## Verification Workflow (MANDATORY)
-
-**After EVERY fix or feature, you MUST visually verify in-game before committing.** See `.agent/workflows/verify-in-game.md` for the full workflow. Summary:
-
-1. Start server (`uvicorn main:app --port 8000`)
-3. **PRIORITY**: Use the `browser_subagent` tool (or manual verification) to verify UI and interactive features. This is more reliable than Python scripts for visual/canvas elements.
-4. If using a Python script: **Assertions First**. Visual verification scripts MUST programmatically assert the presence/visibility of the element (e.g., `expect(locator).to_be_visible()`) BEFORE taking a screenshot. Blind screenshots are forbidden.
-5. Only commit after confirming visual correctness
-6. Clean up temp files
+If any validation fails, fix and rerun before declaring completion.
 
 ---
 
-## Git & Deployment
+## Git and Deployment Safety
 
-- **Branch:** Work on `main`. Commits to `main` auto-deploy to Render.
-- **Commit messages:** Imperative mood, concise (e.g., "Fix tooltip escaping in upgrade tiles").
-- **Commit messages:** Imperative mood, concise (e.g., "Fix tooltip escaping in upgrade tiles").
-
-### ⚠️ Pre-Commit Checklist (MANDATORY — no exceptions)
-
-Before EVERY `git commit`, you MUST complete ALL of these steps IN ORDER:
-
-1. ✅ Run the **full test suite**: `python -m pytest --tb=short -vv -s`
-2. ✅ Verify **ALL tests pass** (0 failures)
-3. ✅ Complete the visual verification workflow (see `.agent/workflows/verify-in-game.md`)
-4. ✅ Only then: `git add <files> && git commit -m "message"`
-
-> **STOP after commit.** Do NOT `git push` unless the user explicitly requests deployment.
-
-### 🚫 Push = Deploy (requires explicit user approval)
-
-- `git push` triggers auto-deploy to production (Render).
-- **NEVER push without the user explicitly asking to deploy.**
-- If you're unsure, ASK. The default is to commit only and notify the user.
-
-
+- Work on `main` unless user requests otherwise.
+- Do not push unless user explicitly asks.
+- `git push` triggers deployment on Render.
+- Before commit, full suite + visual verification are mandatory.
 
 ---
 
-## Command Execution Guidelines (Windows/Bash Environment)
+## Ask First
 
-**CRITICAL:** This project runs in a Windows environment using a Bash terminal. To avoid hanging the agent, allow for non-interactive execution, and prevent conflicts:
-
-1.  **Use Bash Commands:** Prefer `rm`, `cp`, `mv`, `ls` over Windows equivalents (`del`, `copy`, `move`, `dir`). Windows commands like `del` can trigger invisible interactive prompts that hang the agent.
-2.  **No Interactivity:** Always use flags that force non-interactive mode:
-    *   `rm -f` (Force remove, no prompt)
-    *   `cp -f` (Force overwrite)
-    *   `git --no-pager status` (Prevent pager blocking)
-    *   `git --no-pager log`
-3.  **Avoid Command Chaining:** Do not chain complex commands with `&&` if there's a risk of failure or hanging. Execute sequentially.
-4.  **Git Safety:** When running `git` commands that might produce long output, always use `git --no-pager <command>`.
+Request explicit user approval before:
+- Changing prestige design/formulas.
+- Adding or rebalancing buildings/upgrades.
+- Changing game loop timing semantics.
+- Breaking save format compatibility.
+- Adding external dependencies.
 
 ---
 
-## Boundaries
+## Definition of Done for Any Feature/Fix
 
-### Always
-- **Validate your own work end-to-end.** You MUST be able to access, run, and visually verify every implementation you make — whether that means running tests, opening the browser, inspecting the DOM, or taking screenshots. If you are blocked by missing tools, dependencies, permissions, or environment issues (e.g., browser won't launch, Playwright not installed, port not available), you MUST immediately ask the user to install, download, configure, or grant whatever is needed to unblock you. **Never skip validation because a tool isn't working — escalate to the user instead.**
-- Escape HTML attributes when injecting dynamic content via `innerHTML`
-
-- Sort upgrades by price ascending in `renderUpgrades()`
-- Include bilingual support (ES primary, EN secondary) for new UI text
-- Create a Playwright test (`test_*.py`) for every new feature or bug fix before committing
-- Run the **full test suite** (`python -m pytest --tb=short -vv -s`) after implementation and before committing to catch regressions
-
-### Never
-- **Push to `main` (deploy) without explicit user approval** — commit only, then ask
-- **Commit without running the FULL test suite** (all `test_*.py` files, not just one)
-- Modify `buildings.js` cost balancing without explicit user approval
-- Delete or overwrite save data without user confirmation
-- Add external dependencies (npm packages, CDNs) without user approval
-- Skip the in-game verification workflow
-
-### Ask First
-- Changes to the prestige system
-- Adding new buildings or upgrades
-- Modifying the game loop timing
-- Any breaking changes to save format
+A change is complete only if:
+- Code follows current module architecture.
+- Contracts remain valid (`__SUMMAN_TEST_API__`, DOM contract, save schema).
+- Tests are added or updated where relevant.
+- Full test suite passes.
+- Visual verification passes.
+- Docs are updated if architecture/contracts/flows changed.

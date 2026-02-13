@@ -3,7 +3,7 @@ echo Starting Summan Clicker Game Server...
 echo.
 echo The game will be available at:
 echo - Local:   http://localhost:8000
-echo - Network: http://172.23.254.187:8000 (Share this with others!)
+echo - Network: http://<your-local-ip>:8000
 echo.
 echo Press Ctrl+C to stop the server.
 echo.

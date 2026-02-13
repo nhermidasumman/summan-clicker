@@ -1,30 +1,34 @@
-# 🎮 Summan Data Clicker
+# Summan Data Clicker
 
-Un juego incremental temático de **Summan** — Transformación Digital, un dato a la vez.
+Browser incremental game served with FastAPI.
 
-## 🚀 Quick Start (Dev)
+## Run
 
 ```bash
 pip install -r requirements-dev.txt
-uvicorn main:app --reload
+uvicorn main:app --host 127.0.0.1 --port 8000
 ```
 
-Abrir [http://localhost:8000](http://localhost:8000)
+Open: `http://127.0.0.1:8000`
 
-## 🧪 Tests
+## Structure
 
-```bash
-playwright install chromium
-pytest -v test_game.py
-```
+- `backend/`: FastAPI app and routes.
+- `frontend/`: templates and static assets.
+- `tests/`: unit, contract, e2e, and visual suites.
+- `tools/qa/`: manual/visual verification helpers.
+- `docs/`: architecture and development guides.
 
-## 📦 Deploy
+## Frontend entrypoint
 
-El juego se despliega automáticamente en **Render** con cada push a `main`.
+`frontend/static/js/app/main.js` (`type="module"`)
 
-## 🛠️ Stack
+## Runtime modules
 
-- **Backend**: FastAPI + Uvicorn
-- **Frontend**: Vanilla HTML/CSS/JS
-- **Persistencia**: LocalStorage (client-side)
-- **Deploy**: Render (free tier)
+- Core runtime no longer loads `frontend/static/js/legacy/*`.
+- Active gameplay/runtime code lives in `frontend/static/js/core`, `frontend/static/js/content`,
+  `frontend/static/js/ui`, and `frontend/static/js/infra`.
+
+## Browser test contract
+
+Tests should use `window.__SUMMAN_TEST_API__`.
