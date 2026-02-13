@@ -54,7 +54,28 @@ def test_feature_tutorial_bubble_text_visible(page: Page):
               && rect.right <= window.innerWidth
               && rect.bottom <= window.innerHeight;
 
-            const anchored = Math.abs((rect.left + rect.width / 2) - (targetRect.left + targetRect.width / 2)) < 220;
+            const arrow = document.querySelector('#tutorial-layer path.arrow-final');
+            let anchored = false;
+            if (arrow) {
+                const d = arrow.getAttribute('d') || '';
+                const nums = (d.match(/-?\\d+(?:\\.\\d+)?/g) || []).map(Number);
+                if (nums.length >= 6) {
+                    const startX = nums[0];
+                    const startY = nums[1];
+                    const endX = nums[nums.length - 2];
+                    const endY = nums[nums.length - 1];
+
+                    const centerX = rect.left + rect.width / 2;
+                    const centerY = rect.top + rect.height / 2;
+                    const nearBubble = Math.hypot(startX - centerX, startY - centerY) < 220;
+
+                    const targetCenterX = targetRect.left + targetRect.width / 2;
+                    const targetCenterY = targetRect.top + targetRect.height / 2;
+                    const nearTarget = Math.hypot(endX - targetCenterX, endY - targetCenterY) < 140;
+
+                    anchored = nearBubble && nearTarget;
+                }
+            }
             return {
                 visible,
                 text: (bubble.textContent || '').trim(),

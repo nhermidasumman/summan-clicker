@@ -142,3 +142,16 @@ Original prompt: Continua
 - Validation:
   - Full suite: `python -m pytest --tb=short -vv -s` => 30 passed.
   - Visual checks: `tools/qa/verify_modular_bootstrap.png` and `tools/qa/verify_tutorial_bubble_layout.png`.
+
+## 2026-02-13 - Tutorial bubble/arrow visual cohesion
+- Reworked tutorial overlay geometry in `frontend/static/js/ui/overlays/tutorial-overlay.js`:
+  - Bubble is placed first (type-aware), then arrow is computed from bubble edge to target point.
+  - Arrow now starts from the bubble anchor nearest the target and uses a consistent curved control point.
+  - Arrowhead is generated from path direction so orientation is always correct.
+  - Added fallbacks for no-bubble states.
+- Updated tutorial feature test to validate bubble-arrow-target cohesion:
+  - `tests/unit/features/test_feature_tutorial_flow.py`
+  - Parses the arrow path and checks start is near bubble + end near target.
+- Validation:
+  - `python -m pytest --tb=short -vv -s` => 30 passed.
+  - Visual check screenshot: `tools/qa/verify_tutorial_bubble_arrow_cohesion.png`.
