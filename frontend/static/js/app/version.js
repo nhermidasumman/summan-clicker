@@ -1,4 +1,4 @@
-export const GAME_VERSION = "v0.2.0";
+export const GAME_VERSION = "v0.2.1";
 
 export function getVersion() {
     return GAME_VERSION;

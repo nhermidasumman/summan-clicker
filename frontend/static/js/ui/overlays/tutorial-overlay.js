@@ -24,6 +24,9 @@ const TutorialOverlay = (() => {
     const ARROW_SOURCE_VECTOR_Y = ARROW_SOURCE_END.y - ARROW_SOURCE_START.y;
     const ARROW_SOURCE_LENGTH = Math.hypot(ARROW_SOURCE_VECTOR_X, ARROW_SOURCE_VECTOR_Y);
     const ARROW_SOURCE_ANGLE = Math.atan2(ARROW_SOURCE_VECTOR_Y, ARROW_SOURCE_VECTOR_X);
+    const ARROW_MIN_SCALE_DESKTOP = 0.2;
+    const ARROW_MIN_SCALE_MOBILE = 0.1;
+    const ARROW_MAX_SCALE = 1.8;
 
     function init() {
         if (document.getElementById('tutorial-layer')) return;
@@ -408,6 +411,11 @@ const TutorialOverlay = (() => {
         return Math.max(min, Math.min(max, value));
     }
 
+    function getArrowMinScale() {
+        const compactViewport = Math.max(window.innerWidth, window.innerHeight) <= 900;
+        return compactViewport ? ARROW_MIN_SCALE_MOBILE : ARROW_MIN_SCALE_DESKTOP;
+    }
+
     function updateArrowLayout(startPoint, endPoint) {
         if (!arrowEl) return;
 
@@ -420,7 +428,8 @@ const TutorialOverlay = (() => {
             return;
         }
 
-        const scale = clamp(targetLength / ARROW_SOURCE_LENGTH, 0.55, 1.8);
+        const minScale = getArrowMinScale();
+        const scale = clamp(targetLength / ARROW_SOURCE_LENGTH, minScale, ARROW_MAX_SCALE);
         const width = ARROW_VIEWBOX_WIDTH * scale;
         const height = ARROW_VIEWBOX_HEIGHT * scale;
         const startOffsetX = ARROW_SOURCE_START.x * scale;
@@ -429,6 +438,11 @@ const TutorialOverlay = (() => {
         const top = Math.round(startPoint.y - startOffsetY);
         const targetAngle = Math.atan2(targetVectorY, targetVectorX);
         const rotationDeg = (targetAngle - ARROW_SOURCE_ANGLE) * (180 / Math.PI);
+        const unitX = targetVectorX / targetLength;
+        const unitY = targetVectorY / targetLength;
+        const renderedLength = ARROW_SOURCE_LENGTH * scale;
+        const tipX = startPoint.x + (unitX * renderedLength);
+        const tipY = startPoint.y + (unitY * renderedLength);
 
         arrowEl.style.display = 'block';
         arrowEl.style.left = `${left}px`;
@@ -442,6 +456,9 @@ const TutorialOverlay = (() => {
         arrowEl.dataset.startY = `${Math.round(startPoint.y)}`;
         arrowEl.dataset.endX = `${Math.round(endPoint.x)}`;
         arrowEl.dataset.endY = `${Math.round(endPoint.y)}`;
+        arrowEl.dataset.tipX = `${Math.round(tipX)}`;
+        arrowEl.dataset.tipY = `${Math.round(tipY)}`;
+        arrowEl.dataset.scale = scale.toFixed(3);
     }
 
     function showNarrative(text, step, context = {}) {
