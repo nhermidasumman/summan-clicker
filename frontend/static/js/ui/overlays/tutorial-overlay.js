@@ -81,9 +81,12 @@ const TutorialOverlay = (() => {
 
             createElements(target, type, text, context);
 
-            // Auto-scroll to target on change (Improved Mobile UX)
+            // Auto-scroll logic: Only scroll if target is NOT fixed (like orb/dps)
+            // 'intern' is in a list, so it needs scrolling. 'orb' and 'dps' are main layout.
             if (target && typeof target.scrollIntoView === 'function') {
-                target.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+                if (type !== 'orb' && type !== 'dps') {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+                }
             }
         } else {
             // 4. Update Positions (Scroll/Resize)
@@ -227,22 +230,33 @@ const TutorialOverlay = (() => {
             const centerY = targetRect.top + (targetRect.height / 2);
             const windowHeight = window.innerHeight;
             const margin = 16;
+            const headerClearance = 120; // Enough space for top bar + data display
 
-            // If target is in top half, dock to bottom. Else dock to top.
-            // Exception: If type is 'dps' (which is at top), always dock bottom.
-            const dockBottom = (centerY < (windowHeight / 2)) || type === 'dps';
+            // Mobile Docking Logic - "Below Sphere" Strategy
+            const orb = document.getElementById('click-orb');
+            let anchorTop = headerClearance; // default fallback
 
-            if (dockBottom) {
-                return {
-                    left: margin,
-                    top: windowHeight - bubbleHeight - margin - 20 // safe area for bottom nav/touches
-                };
+            if (orb) {
+                const orbRect = orb.getBoundingClientRect();
+                // Anchor just below the orb
+                anchorTop = orbRect.bottom + 20;
             } else {
-                return {
-                    left: margin,
-                    top: margin + 50 // safe area for top bar
-                };
+                // Fallback if orb not found (unlikely), approx 45% screen height
+                anchorTop = windowHeight * 0.45;
             }
+
+            // Ensure we don't go too low (into buttons) or too high (into header)
+            // Header is approx 0-100px.
+            // Buttons are approx bottom 100px.
+            const minTop = 110;
+            const maxTop = windowHeight - bubbleHeight - 110;
+
+            const safeTop = clamp(anchorTop, minTop, maxTop);
+
+            return {
+                left: margin,
+                top: safeTop
+            };
         }
 
         // Desktop Logic (Original)

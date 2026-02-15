@@ -55,7 +55,11 @@ Original prompt: Continua
         - Updated `test_feature_tutorial_flow.py` to match new safe margins for arrows.
         - Verified with `pytest` and `verify_modular_bootstrap.py`.
 
-## 2026-02-13 - Split pass (game-loop + renderer) and icon regression fix
+### [2026-02-15] Release v0.2.2
+- **Fix**: Adjust mobile tutorial bubble positioning to avoid blocking the score (header) and buttons (footer).
+- **Bump**: Version updated to 0.2.2.
+
+### [2026-02-14] Architecture Analysis (game-loop + renderer) and icon regression fix
 - Split runtime responsibilities out of `core/game-loop.js`:
   - Added `core/achievement-system.js` and moved unlock flow there.
   - Replaced `core/progression-system.js` wrapper with real progression implementation (buildings/upgrades/prestige operations and preview).
