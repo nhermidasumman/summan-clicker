@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 100" role="img" aria-labelledby="title desc">
+  <title id="title">Comet Tail Arrow</title>
+  <desc id="desc">Curved comet style arrow with organic movement and bright target direction.</desc>
+  <defs>
+    <linearGradient id="cometGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#40600c"/>
+      <stop offset="45%" stop-color="#8eb91a"/>
+      <stop offset="100%" stop-color="#d0f77a"/>
+    </linearGradient>
+    <filter id="softGlow" x="-25%" y="-50%" width="150%" height="200%">
+      <feGaussianBlur stdDeviation="1.7" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <style>
+    .trail {
+      fill: none;
+      stroke: url(#cometGrad);
+      stroke-width: 10;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: 14 10;
+      animation: drift 1.8s ease-in-out infinite;
+      filter: url(#softGlow);
+    }
+    .tip {
+      fill: #bde765;
+      filter: url(#softGlow);
+      animation: tipFlare 1.8s ease-in-out infinite;
+    }
+    .dust {
+      fill: #9ac31c;
+      opacity: 0.45;
+      animation: dustPulse 1.8s ease-in-out infinite;
+    }
+    @keyframes drift {
+      0%, 100% { transform: translateY(0); stroke-dashoffset: 0; }
+      50% { transform: translateY(-3px); stroke-dashoffset: -30; }
+    }
+    @keyframes tipFlare {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.06); }
+    }
+    @keyframes dustPulse {
+      0%, 100% { opacity: 0.15; transform: translateX(0); }
+      50% { opacity: 0.6; transform: translateX(14px); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .trail, .tip, .dust { animation: none; }
+    }
+  </style>
+  <g>
+    <path class="trail" d="M20 64C70 22 144 28 214 50"/>
+    <path class="tip" d="M214 24L292 50L210 76L236 50Z"/>
+    <circle class="dust" cx="46" cy="62" r="5"/>
+    <circle class="dust" cx="74" cy="50" r="3" style="animation-delay:0.2s"/>
+    <circle class="dust" cx="102" cy="42" r="2.5" style="animation-delay:0.4s"/>
+  </g>
+</svg>

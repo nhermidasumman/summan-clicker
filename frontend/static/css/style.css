@@ -1641,6 +1641,14 @@ body {
     pointer-events: none;
 }
 
+.tutorial-arrow-svg {
+    position: fixed;
+    pointer-events: none;
+    z-index: 10000;
+    will-change: transform, left, top;
+    image-rendering: auto;
+}
+
 .tutorial-arrow {
     position: absolute;
     width: 0;
@@ -1965,7 +1973,9 @@ body {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: black;
+    box-sizing: border-box;
+    padding: clamp(10px, 2.8vw, 28px);
+    background: radial-gradient(circle at 50% 50%, rgba(5, 7, 11, 0.48) 0%, rgba(2, 3, 5, 0.38) 70%, rgba(1, 2, 4, 0.52) 100%);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -1974,15 +1984,67 @@ body {
     overflow: hidden;
 }
 
+.narrative-overlay::before,
+.narrative-overlay::after {
+    content: "";
+    position: absolute;
+    width: 115vmax;
+    height: 115vmax;
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: 0.16;
+    z-index: 1;
+    will-change: transform, opacity;
+}
+
+.narrative-overlay::before {
+    top: -62vmax;
+    left: -52vmax;
+    background: radial-gradient(circle, rgba(255, 208, 106, 0.42) 0%, rgba(255, 208, 106, 0.14) 40%, transparent 72%);
+}
+
+.narrative-overlay::after {
+    right: -54vmax;
+    bottom: -66vmax;
+    background: radial-gradient(circle, rgba(255, 75, 62, 0.4) 0%, rgba(255, 75, 62, 0.12) 42%, transparent 74%);
+}
+
+.narrative-overlay.narrative-step-2::before {
+    opacity: 0.24;
+    animation: mantra-aura-left 1.3s ease-in-out infinite alternate;
+}
+
+.narrative-overlay.narrative-step-2::after {
+    opacity: 0.12;
+}
+
+.narrative-overlay.narrative-step-3::before {
+    opacity: 0.32;
+    animation: mantra-aura-left 1.05s ease-in-out infinite alternate;
+}
+
+.narrative-overlay.narrative-step-3::after {
+    opacity: 0.24;
+    animation: mantra-aura-right 1.15s ease-in-out infinite alternate;
+}
+
+.narrative-overlay.narrative-step-4::before {
+    opacity: 0.42;
+    animation: mantra-aura-left 0.82s ease-in-out infinite alternate;
+}
+
+.narrative-overlay.narrative-step-4::after {
+    opacity: 0.38;
+    animation: mantra-aura-right 0.78s ease-in-out infinite alternate;
+}
+
 .mantra-bg {
     position: absolute;
-    width: 200%;
-    height: 200%;
-    top: -50%;
-    left: -50%;
-    background: repeating-conic-gradient(#111 0 15deg, #000 15deg 30deg);
-    animation: spin-spiral 20s linear infinite;
-    opacity: 0.5;
+    inset: -10%;
+    background:
+        radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.035), rgba(0, 0, 0, 0) 62%),
+        repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0 2px, rgba(255, 255, 255, 0) 2px 10px);
+    opacity: 0.1;
     z-index: 0;
 }
 
@@ -1990,23 +2052,35 @@ body {
     z-index: 10;
     text-transform: uppercase;
     text-align: center;
+    width: min(92vw, 1240px);
+    max-width: 1240px;
+    padding: 0 10px;
+    line-height: 1.08;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    text-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+    opacity: 1;
+    transform: none;
+    --mantra-scale-max: 1.18;
 }
 
 .mantra-1 {
     font-family: 'Inter', sans-serif;
     font-weight: 900;
-    font-size: 2rem;
-    color: white;
-    letter-spacing: 5px;
+    font-size: clamp(1.55rem, 4.6vw, 2.2rem);
+    color: var(--green-light);
+    letter-spacing: clamp(2px, 0.6vw, 6px);
+    text-shadow: 0 0 12px rgba(154, 195, 28, 0.45);
     animation: hypnotize 2s ease-in-out infinite alternate;
 }
 
 .mantra-2 {
     font-family: 'Inter', sans-serif;
     font-weight: 900;
-    font-size: 3.5rem;
+    font-size: clamp(2rem, 8.4vw, 3.7rem);
     color: var(--orange);
-    letter-spacing: 8px;
+    letter-spacing: clamp(3px, 0.9vw, 8px);
     text-shadow: 0 0 10px var(--orange);
     animation: hypnotize 1.5s ease-in-out infinite alternate;
 }
@@ -2014,17 +2088,30 @@ body {
 .mantra-3 {
     font-family: 'Inter', sans-serif;
     font-weight: 900;
-    font-size: 5rem;
-    /* Slightly smaller for mobile safety */
+    font-size: clamp(1.85rem, 10.2vw, 5rem);
     color: var(--red);
-    letter-spacing: 10px;
+    letter-spacing: clamp(3px, 1.1vw, 10px);
     text-shadow: 0 0 20px var(--red);
     animation: hypnotize 1s ease-in-out infinite alternate, violent-shake 0.1s linear infinite;
 }
 
-@keyframes spin-spiral {
+@keyframes mantra-aura-left {
+    from {
+        transform: scale(0.9) translate(-2%, -2%);
+    }
+
     to {
-        transform: rotate(360deg);
+        transform: scale(1.08) translate(3%, 3%);
+    }
+}
+
+@keyframes mantra-aura-right {
+    from {
+        transform: scale(0.88) translate(3%, 2%);
+    }
+
+    to {
+        transform: scale(1.07) translate(-2%, -3%);
     }
 }
 
@@ -2034,7 +2121,7 @@ body {
     }
 
     to {
-        transform: scale(1.2);
+        transform: scale(var(--mantra-scale-max, 1.18));
     }
 }
 
@@ -2057,5 +2144,27 @@ body {
 
     100% {
         transform: translate(2px, 2px) rotate(0deg);
+    }
+}
+
+@media (max-width: 900px) {
+    .mantra-text {
+        --mantra-scale-max: 1.11;
+    }
+}
+
+@media (max-width: 600px) {
+    .mantra-text {
+        --mantra-scale-max: 1.07;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .narrative-overlay::before,
+    .narrative-overlay::after,
+    .mantra-1,
+    .mantra-2,
+    .mantra-3 {
+        animation: none !important;
     }
 }

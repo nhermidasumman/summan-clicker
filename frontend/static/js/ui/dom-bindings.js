@@ -1,7 +1,22 @@
-﻿export function bindDomEvents(elements, handlers = {}) {
+export function bindDomEvents(elements, handlers = {}) {
   if (!elements) return;
 
   const clickTarget = elements.clickTarget;
+  const clickOrb = elements.clickOrb;
+  const activeOrbPointers = new Set();
+
+  function releasePointer(pointerId) {
+    if (!activeOrbPointers.has(pointerId)) return false;
+    activeOrbPointers.delete(pointerId);
+    handlers.onClickTargetRelease?.(pointerId);
+    return true;
+  }
+
+  function isOrbInteraction(event) {
+    if (!clickOrb || !event?.target) return false;
+    return event.target === clickOrb || clickOrb.contains(event.target);
+  }
+
   if (clickTarget) {
     clickTarget.addEventListener('click', (event) => {
       const rect = clickTarget.getBoundingClientRect();
@@ -10,7 +25,47 @@
       handlers.onClickTarget?.(x, y);
     });
 
+    clickTarget.addEventListener('pointerdown', (event) => {
+      if (event.button !== 0) return;
+      if (!isOrbInteraction(event)) return;
+
+      activeOrbPointers.add(event.pointerId);
+      if (clickTarget.setPointerCapture) {
+        try {
+          clickTarget.setPointerCapture(event.pointerId);
+        } catch {
+          // Ignore capture failures on browser edge-cases.
+        }
+      }
+      handlers.onClickTargetPress?.(event.pointerId);
+    });
+
+    clickTarget.addEventListener('pointerup', (event) => {
+      releasePointer(event.pointerId);
+    });
+
+    clickTarget.addEventListener('pointercancel', (event) => {
+      releasePointer(event.pointerId);
+    });
+
+    clickTarget.addEventListener('lostpointercapture', (event) => {
+      releasePointer(event.pointerId);
+    });
+
+    clickTarget.addEventListener('pointerleave', (event) => {
+      if (event.buttons !== 0) return;
+      releasePointer(event.pointerId);
+    });
+
     clickTarget.addEventListener('contextmenu', (event) => event.preventDefault());
+
+    window.addEventListener('pointerup', (event) => {
+      releasePointer(event.pointerId);
+    });
+
+    window.addEventListener('pointercancel', (event) => {
+      releasePointer(event.pointerId);
+    });
   }
 
   if (elements.tabBuildings) {

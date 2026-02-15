@@ -39,12 +39,14 @@ const Tutorial = (() => {
     const data = gameState.dataPoints;
     const internVal = gameState.buildings.intern;
     const internCount = (typeof internVal === 'object' ? internVal.count : internVal) || 0;
+    const clickSeed = Number(gameState.stats?.totalClicksAllTime ?? gameState.stats?.totalClicks ?? 0);
 
     let target = null;
     let type = null;
     let message = '';
     let narrativeStep = 0;
     let narrativeText = '';
+    let narrativeOpacity = 1;
 
     if (state.subStep === 0) {
       if (internCount > 0) {
@@ -72,6 +74,7 @@ const Tutorial = (() => {
       const result = handleNarrativeLogic();
       narrativeStep = result.step;
       narrativeText = result.text;
+      narrativeOpacity = result.narrativeOpacity;
 
       if (state.subStep === 1) {
         target = document.getElementById('dps-display');
@@ -86,10 +89,10 @@ const Tutorial = (() => {
       }
     }
 
-    TutorialOverlay.render(target, type, message, narrativeStep > 1 ? narrativeStep : 0);
+    TutorialOverlay.render(target, type, message, narrativeStep > 1 ? narrativeStep : 0, { clickSeed });
 
     if (state.subStep >= 2) {
-      TutorialOverlay.render(null, null, narrativeText, state.subStep);
+      TutorialOverlay.render(null, null, narrativeText, state.subStep, { narrativeOpacity });
     }
   }
 
@@ -99,8 +102,9 @@ const Tutorial = (() => {
     const mantra1Duration = 2500;
     const mantra2Duration = 2500;
     const mantra3Duration = 4000;
+    const mantra3FadeOutDuration = 450;
 
-    const result = { step: 0, text: '', complete: false };
+    const result = { step: 0, text: '', complete: false, narrativeOpacity: 1 };
 
     if (state.subStep === 1) {
       if (elapsed > dpsStepDuration) {
@@ -124,6 +128,13 @@ const Tutorial = (() => {
     } else if (state.subStep === 4) {
       result.step = 4;
       result.text = Lang.t('tutorial_mantra_3') || '3. UTILIZA';
+
+      const fadeStart = Math.max(0, mantra3Duration - mantra3FadeOutDuration);
+      if (elapsed >= fadeStart) {
+        const fadeProgress = Math.min(1, (elapsed - fadeStart) / mantra3FadeOutDuration);
+        result.narrativeOpacity = Math.max(0, 1 - fadeProgress);
+      }
+
       if (elapsed > mantra3Duration) {
         result.complete = true;
       }

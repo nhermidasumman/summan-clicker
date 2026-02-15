@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 100" role="img" aria-labelledby="title desc">
+  <title id="title">Comet Tail Arrow Refined</title>
+  <desc id="desc">Refined comet tutorial arrow with clearer head focus and cleaner directional flow.</desc>
+  <defs>
+    <linearGradient id="tailGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#334d0a"/>
+      <stop offset="48%" stop-color="#8cb81a"/>
+      <stop offset="100%" stop-color="#d8ff88"/>
+    </linearGradient>
+    <linearGradient id="tipGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#9ac31c"/>
+      <stop offset="100%" stop-color="#dfff97"/>
+    </linearGradient>
+    <filter id="cometGlow" x="-30%" y="-60%" width="170%" height="220%">
+      <feGaussianBlur stdDeviation="1.6" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <style>
+    .trail-back {
+      fill: none;
+      stroke: #273b09;
+      stroke-width: 12;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      opacity: 0.85;
+    }
+    .trail-core {
+      fill: none;
+      stroke: url(#tailGrad);
+      stroke-width: 8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: 24 14;
+      filter: url(#cometGlow);
+      animation: stream 1.6s linear infinite, drift 2.2s ease-in-out infinite;
+    }
+    .trail-sheen {
+      fill: none;
+      stroke: #e7ffb8;
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-dasharray: 7 26;
+      opacity: 0.72;
+      animation: streamFast 1.2s linear infinite;
+      filter: url(#cometGlow);
+    }
+    .tip {
+      fill: url(#tipGrad);
+      stroke: #23360a;
+      stroke-width: 4;
+      stroke-linejoin: round;
+      filter: url(#cometGlow);
+      animation: tipNudge 1.2s ease-in-out infinite;
+      transform-origin: 246px 50px;
+    }
+    .tip-core {
+      fill: #f2ffd0;
+      opacity: 0.88;
+      animation: corePulse 1.2s ease-in-out infinite;
+      transform-origin: 258px 50px;
+    }
+    .dust {
+      fill: #b8e65a;
+      opacity: 0.38;
+      filter: url(#cometGlow);
+      animation: dustTrail 1.6s ease-in-out infinite;
+    }
+    .d2 { animation-delay: 0.22s; }
+    .d3 { animation-delay: 0.44s; }
+    @keyframes stream {
+      from { stroke-dashoffset: 0; }
+      to { stroke-dashoffset: -76; }
+    }
+    @keyframes streamFast {
+      from { stroke-dashoffset: 0; }
+      to { stroke-dashoffset: -33; }
+    }
+    @keyframes drift {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-2px); }
+    }
+    @keyframes tipNudge {
+      0%, 100% { transform: translateX(0) scale(1); }
+      50% { transform: translateX(6px) scale(1.03); }
+    }
+    @keyframes corePulse {
+      0%, 100% { transform: scale(1); opacity: 0.72; }
+      50% { transform: scale(1.12); opacity: 1; }
+    }
+    @keyframes dustTrail {
+      0%, 100% { transform: translateX(0); opacity: 0.12; }
+      45% { opacity: 0.5; }
+      100% { transform: translateX(14px); opacity: 0.2; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .trail-core, .trail-sheen, .tip, .tip-core, .dust {
+        animation: none;
+      }
+    }
+  </style>
+  <g>
+    <path class="trail-back" d="M18 64C67 23 143 27 218 50"/>
+    <path class="trail-core" d="M18 64C67 23 143 27 218 50"/>
+    <path class="trail-sheen" d="M30 59C80 29 149 32 210 50"/>
+    <path class="tip" d="M214 20L294 50L212 80L242 50Z"/>
+    <circle class="tip-core" cx="256" cy="50" r="4"/>
+    <circle class="dust" cx="46" cy="62" r="4.8"/>
+    <circle class="dust d2" cx="76" cy="50" r="3"/>
+    <circle class="dust d3" cx="106" cy="41" r="2.4"/>
+  </g>
+</svg>

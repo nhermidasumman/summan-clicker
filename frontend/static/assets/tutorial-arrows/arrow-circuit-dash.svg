@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 100" role="img" aria-labelledby="title desc">
+  <title id="title">Circuit Dash Arrow</title>
+  <desc id="desc">Technical circuit-like arrow with running signal effect.</desc>
+  <style>
+    .path {
+      fill: none;
+      stroke: #9ac31c;
+      stroke-width: 9;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: 10 14;
+      animation: signal 1.1s linear infinite;
+    }
+    .base {
+      fill: none;
+      stroke: #2f4310;
+      stroke-width: 11;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      opacity: 0.9;
+    }
+    .node {
+      fill: #c8ef71;
+      animation: nodeBlink 1.1s ease-in-out infinite;
+    }
+    .node.n2 { animation-delay: 0.22s; }
+    .node.n3 { animation-delay: 0.44s; }
+    .head {
+      fill: #9ac31c;
+      animation: headSnap 1.1s ease-in-out infinite;
+    }
+    @keyframes signal {
+      from { stroke-dashoffset: 0; }
+      to { stroke-dashoffset: -48; }
+    }
+    @keyframes nodeBlink {
+      0%, 100% { opacity: 0.25; transform: scale(0.9); }
+      45% { opacity: 1; transform: scale(1.15); }
+    }
+    @keyframes headSnap {
+      0%, 100% { transform: translateX(0); }
+      50% { transform: translateX(5px); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .path, .node, .head { animation: none; }
+    }
+  </style>
+  <g>
+    <polyline class="base" points="22,66 74,66 74,34 156,34 156,50 226,50"/>
+    <polyline class="path" points="22,66 74,66 74,34 156,34 156,50 226,50"/>
+    <rect class="node" x="66" y="58" width="16" height="16" rx="3"/>
+    <rect class="node n2" x="148" y="26" width="16" height="16" rx="3"/>
+    <rect class="node n3" x="214" y="42" width="16" height="16" rx="3"/>
+    <path class="head" d="M218 18L294 50L218 82L240 50Z"/>
+  </g>
+</svg>

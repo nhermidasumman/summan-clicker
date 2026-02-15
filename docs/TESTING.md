@@ -15,3 +15,11 @@
 ```bash
 python -m pytest --tb=short -vv -s
 ```
+
+## Audio SFX regression
+- Click orb press/release + variant rotation is covered by:
+  - `tests/unit/features/test_feature_audio_click_sfx.py`
+- Targeted run:
+```bash
+python -m pytest --tb=short -vv -s tests/unit/features/test_feature_audio_click_sfx.py
+```

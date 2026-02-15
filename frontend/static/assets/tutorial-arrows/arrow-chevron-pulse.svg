@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 100" role="img" aria-labelledby="title desc">
+  <title id="title">Chevron Pulse Arrow</title>
+  <desc id="desc">Stepped chevron arrow with pulse rhythm for clean tutorial direction.</desc>
+  <style>
+    .rail {
+      fill: none;
+      stroke: #3f5a0f;
+      stroke-width: 8;
+      stroke-linecap: round;
+      opacity: 0.75;
+    }
+    .chev {
+      fill: none;
+      stroke: #9ac31c;
+      stroke-width: 11;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: stepPulse 1.2s ease-in-out infinite;
+    }
+    .c2 { animation-delay: 0.18s; }
+    .c3 { animation-delay: 0.36s; }
+    .head {
+      fill: #b8e65a;
+      animation: headBounce 1.2s ease-in-out infinite;
+      animation-delay: 0.36s;
+    }
+    @keyframes stepPulse {
+      0%, 100% { opacity: 0.3; transform: translateX(-8px); }
+      45% { opacity: 1; transform: translateX(6px); }
+    }
+    @keyframes headBounce {
+      0%, 100% { transform: translateX(0); }
+      50% { transform: translateX(8px); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .chev, .head { animation: none; }
+    }
+  </style>
+  <g>
+    <path class="rail" d="M26 50H252"/>
+    <path class="chev c1" d="M58 34L76 50L58 66"/>
+    <path class="chev c2" d="M104 34L122 50L104 66"/>
+    <path class="chev c3" d="M150 34L168 50L150 66"/>
+    <path class="head" d="M212 20L286 50L212 80Z"/>
+  </g>
+</svg>

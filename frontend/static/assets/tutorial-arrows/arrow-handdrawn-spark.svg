@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 100" role="img" aria-labelledby="title desc">
+  <title id="title">Hand Drawn Spark Arrow</title>
+  <desc id="desc">Sketch-like arrow with playful rough vibe for tutorial prompts.</desc>
+  <style>
+    .outline {
+      fill: none;
+      stroke: #20300b;
+      stroke-width: 14;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .stroke {
+      fill: none;
+      stroke: #9ac31c;
+      stroke-width: 9;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: 20 8;
+      animation: sketchMove 1.6s linear infinite;
+    }
+    .spark {
+      fill: #d9ff8e;
+      stroke: #2f4310;
+      stroke-width: 2;
+      animation: jitter 0.9s steps(2, end) infinite;
+    }
+    .head {
+      fill: #9ac31c;
+      stroke: #20300b;
+      stroke-width: 6;
+      stroke-linejoin: round;
+      animation: wiggle 1.3s ease-in-out infinite;
+      transform-origin: 254px 50px;
+    }
+    @keyframes sketchMove {
+      from { stroke-dashoffset: 0; }
+      to { stroke-dashoffset: -56; }
+    }
+    @keyframes jitter {
+      0%, 100% { transform: translate(0,0); }
+      33% { transform: translate(1px,-1px); }
+      66% { transform: translate(-1px,1px); }
+    }
+    @keyframes wiggle {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(2deg); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .stroke, .spark, .head { animation: none; }
+    }
+  </style>
+  <g>
+    <path class="outline" d="M24 58C72 22 130 30 192 46"/>
+    <path class="stroke" d="M24 58C72 22 130 30 192 46"/>
+    <path class="head" d="M192 20L286 50L196 78L228 50Z"/>
+    <polygon class="spark" points="86,44 92,52 100,46 95,56 104,62 93,60 88,70 87,58 76,56 85,50"/>
+  </g>
+</svg>

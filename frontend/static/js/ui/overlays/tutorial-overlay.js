@@ -1,21 +1,29 @@
 const TutorialOverlay = (() => {
     let overlayContainer = null;
-    let svgContainer = null;
 
     // State Tracking
     let currentTarget = null;
     let currentType = null;
+    let currentArrowSeed = null;
+    let currentArrowStartPoint = null;
 
     // Element References
-    let arrowPath = null;
-    let arrowHead = null;
+    let arrowEl = null;
     let rippleEl = null;
     let bubbleEl = null;
 
-    const SVG_NS = "http://www.w3.org/2000/svg";
     const BUBBLE_VIEWPORT_MARGIN = 12;
     const BUBBLE_GAP = 28;
     const BUBBLE_TARGET_OFFSET = 42;
+    const ARROW_ASSET_PATH = "/static/assets/tutorial-arrows/arrow-comet-tail.svg";
+    const ARROW_VIEWBOX_WIDTH = 320;
+    const ARROW_VIEWBOX_HEIGHT = 100;
+    const ARROW_SOURCE_START = { x: 20, y: 64 };
+    const ARROW_SOURCE_END = { x: 292, y: 50 };
+    const ARROW_SOURCE_VECTOR_X = ARROW_SOURCE_END.x - ARROW_SOURCE_START.x;
+    const ARROW_SOURCE_VECTOR_Y = ARROW_SOURCE_END.y - ARROW_SOURCE_START.y;
+    const ARROW_SOURCE_LENGTH = Math.hypot(ARROW_SOURCE_VECTOR_X, ARROW_SOURCE_VECTOR_Y);
+    const ARROW_SOURCE_ANGLE = Math.atan2(ARROW_SOURCE_VECTOR_Y, ARROW_SOURCE_VECTOR_X);
 
     function init() {
         if (document.getElementById('tutorial-layer')) return;
@@ -30,58 +38,28 @@ const TutorialOverlay = (() => {
         overlayContainer.style.height = '100vh';
         overlayContainer.style.pointerEvents = 'none';
         overlayContainer.style.zIndex = '9999';
-
-        // SVG Layer
-        svgContainer = document.createElementNS(SVG_NS, 'svg');
-        svgContainer.style.width = '100%';
-        svgContainer.style.height = '100%';
-        svgContainer.style.position = 'absolute';
-        svgContainer.style.top = '0';
-        svgContainer.style.left = '0';
-
-        // Filter Definition (DOM API for robustness)
-        const defs = document.createElementNS(SVG_NS, 'defs');
-        const filter = document.createElementNS(SVG_NS, 'filter');
-        filter.setAttribute('id', 'turbulence-erratic');
-
-        const feTurbulence = document.createElementNS(SVG_NS, 'feTurbulence');
-        feTurbulence.setAttribute('type', 'fractalNoise');
-        feTurbulence.setAttribute('baseFrequency', '0.05');
-        feTurbulence.setAttribute('numOctaves', '2');
-        feTurbulence.setAttribute('result', 'noise');
-
-        const feDispMap = document.createElementNS(SVG_NS, 'feDisplacementMap');
-        feDispMap.setAttribute('in', 'SourceGraphic');
-        feDispMap.setAttribute('in2', 'noise');
-        feDispMap.setAttribute('scale', '3');
-
-        filter.appendChild(feTurbulence);
-        filter.appendChild(feDispMap);
-        defs.appendChild(filter);
-        svgContainer.appendChild(defs);
-
-        overlayContainer.appendChild(svgContainer);
         document.body.appendChild(overlayContainer);
     }
 
     function clear() {
         // Clear DOM elements but keep container
-        if (arrowPath) { arrowPath.remove(); arrowPath = null; }
-        if (arrowHead) { arrowHead.remove(); arrowHead = null; }
+        if (arrowEl) { arrowEl.remove(); arrowEl = null; }
         if (rippleEl) { rippleEl.remove(); rippleEl = null; }
         if (bubbleEl) { bubbleEl.remove(); bubbleEl = null; }
 
         currentTarget = null;
         currentType = null;
+        currentArrowSeed = null;
+        currentArrowStartPoint = null;
 
         hideNarrative();
     }
 
-    function render(target, type, text, narrativeStep = 0) {
+    function render(target, type, text, narrativeStep = 0, context = {}) {
         // 1. Narrative Mode
         if (narrativeStep > 0) {
             clear(); // Remove arrow/bubble
-            showNarrative(text, narrativeStep);
+            showNarrative(text, narrativeStep, context);
             return;
         }
         hideNarrative();
@@ -98,26 +76,23 @@ const TutorialOverlay = (() => {
             currentTarget = target;
             currentType = type;
 
-            createElements(target, type, text);
+            createElements(target, type, text, context);
         } else {
             // 4. Update Positions (Scroll/Resize)
-            updatePositions(target, type, text);
+            updatePositions(target, type, text, context);
         }
     }
 
-    function createElements(target, type, text) {
-        if (!svgContainer) return;
+    function createElements(target, type, text, context = {}) {
+        if (!overlayContainer) return;
 
-        // Arrow
-        arrowPath = document.createElementNS(SVG_NS, 'path');
-        arrowPath.setAttribute('class', 'arrow-final');
-        svgContainer.appendChild(arrowPath);
-
-        arrowHead = document.createElementNS(SVG_NS, 'path');
-        arrowHead.setAttribute('class', 'arrow-final');
-        arrowHead.style.animation = "none";
-        arrowHead.style.strokeDasharray = "none";
-        svgContainer.appendChild(arrowHead);
+        arrowEl = document.createElement('img');
+        arrowEl.className = 'tutorial-arrow-svg';
+        arrowEl.src = ARROW_ASSET_PATH;
+        arrowEl.alt = 'Tutorial arrow';
+        arrowEl.decoding = 'async';
+        arrowEl.loading = 'eager';
+        overlayContainer.appendChild(arrowEl);
 
         // Ripple
         rippleEl = document.createElement('div');
@@ -135,10 +110,10 @@ const TutorialOverlay = (() => {
         }
 
         // Initial Position Set
-        updatePositions(target, type, text);
+        updatePositions(target, type, text, context);
     }
 
-    function updatePositions(target, type, text) {
+    function updatePositions(target, type, text, context = {}) {
         const rect = target.getBoundingClientRect();
 
         // --- Ripple Logic ---
@@ -149,28 +124,20 @@ const TutorialOverlay = (() => {
             rippleEl.style.top = `${centerY}px`;
         }
 
+        // --- Arrow Logic (decoupled from bubble) ---
+        const startPoint = getArrowStartPoint(rect, type, context);
+        const targetPoint = getTargetPoint(rect, type, startPoint);
+
         // --- Bubble Logic ---
-        let bubbleRect = null;
         if (bubbleEl) {
-            bubbleRect = applyBubbleLayout(bubbleEl, rect, type, text || "");
+            if (type === 'dps') {
+                applyDpsBubbleLayout(bubbleEl, rect, text || "", startPoint, targetPoint);
+            } else {
+                applyBubbleLayout(bubbleEl, rect, type, text || "");
+            }
         }
 
-        // --- Arrow Logic (bubble-first for visual coherence) ---
-        const targetPoint = getTargetPoint(rect, type);
-        const startPoint = bubbleRect
-            ? getBubbleAnchorPoint(bubbleRect, targetPoint)
-            : getFallbackArrowStart(rect, type);
-        const controlPoint = getArrowControlPoint(startPoint, targetPoint, type);
-
-        if (arrowPath) {
-            const d = `M ${startPoint.x} ${startPoint.y} Q ${controlPoint.x} ${controlPoint.y} ${targetPoint.x} ${targetPoint.y}`;
-            arrowPath.setAttribute('d', d);
-        }
-
-        if (arrowHead) {
-            const angle = Math.atan2(targetPoint.y - controlPoint.y, targetPoint.x - controlPoint.x);
-            arrowHead.setAttribute('d', buildArrowHeadPath(targetPoint.x, targetPoint.y, angle, 18, Math.PI / 7));
-        }
+        updateArrowLayout(startPoint, targetPoint);
     }
 
     function applyBubbleLayout(bubble, targetRect, type, text) {
@@ -178,7 +145,8 @@ const TutorialOverlay = (() => {
             bubble.textContent = text;
         }
 
-        const maxWidth = Math.max(220, Math.min(460, window.innerWidth - (BUBBLE_VIEWPORT_MARGIN * 2)));
+        const preferredMax = type === 'dps' ? 340 : 420;
+        const maxWidth = Math.max(220, Math.min(preferredMax, window.innerWidth - (BUBBLE_VIEWPORT_MARGIN * 2)));
         bubble.style.maxWidth = `${maxWidth}px`;
         bubble.style.width = 'max-content';
         bubble.style.height = 'auto';
@@ -194,22 +162,49 @@ const TutorialOverlay = (() => {
         const bubbleHeight = Math.ceil(box.height);
 
         const position = getPreferredBubblePosition(targetRect, bubbleWidth, bubbleHeight, type);
-        let left = position.left;
-        let top = position.top;
+        const left = position.left;
+        const top = position.top;
 
-        if (left + bubbleWidth > window.innerWidth - BUBBLE_VIEWPORT_MARGIN) {
-            left = window.innerWidth - bubbleWidth - BUBBLE_VIEWPORT_MARGIN;
-        }
-        if (left < BUBBLE_VIEWPORT_MARGIN) {
-            left = BUBBLE_VIEWPORT_MARGIN;
+        bubble.style.left = `${Math.round(left)}px`;
+        bubble.style.top = `${Math.round(top)}px`;
+        bubble.style.visibility = 'visible';
+
+        return bubble.getBoundingClientRect();
+    }
+
+    function applyDpsBubbleLayout(bubble, targetRect, text, startPoint, targetPoint) {
+        if (bubble.textContent !== text) {
+            bubble.textContent = text;
         }
 
-        if (top + bubbleHeight > window.innerHeight - BUBBLE_VIEWPORT_MARGIN) {
-            top = targetRect.top - bubbleHeight - BUBBLE_GAP;
+        const maxWidth = Math.max(220, Math.min(320, window.innerWidth - (BUBBLE_VIEWPORT_MARGIN * 2)));
+        bubble.style.maxWidth = `${maxWidth}px`;
+        bubble.style.width = 'max-content';
+        bubble.style.height = 'auto';
+        bubble.style.whiteSpace = 'normal';
+        bubble.style.wordBreak = 'break-word';
+        bubble.style.overflowWrap = 'anywhere';
+        bubble.style.visibility = 'hidden';
+        bubble.style.left = '0px';
+        bubble.style.top = '0px';
+
+        const box = bubble.getBoundingClientRect();
+        const bubbleWidth = Math.ceil(box.width);
+        const bubbleHeight = Math.ceil(box.height);
+
+        const arrowAnchorX = startPoint.x + ((targetPoint.x - startPoint.x) * 0.45);
+        const arrowTopY = Math.min(startPoint.y, targetPoint.y);
+        let left = arrowAnchorX - (bubbleWidth / 2);
+        let top = arrowTopY - bubbleHeight - 18;
+
+        // Keep DPS bubble left of the production text block.
+        const maxRight = targetRect.left - 24;
+        if ((left + bubbleWidth) > maxRight) {
+            left = maxRight - bubbleWidth;
         }
-        if (top < BUBBLE_VIEWPORT_MARGIN) {
-            top = BUBBLE_VIEWPORT_MARGIN;
-        }
+
+        left = clamp(left, BUBBLE_VIEWPORT_MARGIN, window.innerWidth - bubbleWidth - BUBBLE_VIEWPORT_MARGIN);
+        top = clamp(top, BUBBLE_VIEWPORT_MARGIN, window.innerHeight - bubbleHeight - BUBBLE_VIEWPORT_MARGIN);
 
         bubble.style.left = `${Math.round(left)}px`;
         bubble.style.top = `${Math.round(top)}px`;
@@ -221,43 +216,121 @@ const TutorialOverlay = (() => {
     function getPreferredBubblePosition(targetRect, bubbleWidth, bubbleHeight, type) {
         const centerX = targetRect.left + targetRect.width / 2;
         const centerY = targetRect.top + targetRect.height / 2;
+        const candidates = [];
 
         if (type === 'orb') {
-            return {
-                left: targetRect.left - bubbleWidth - BUBBLE_TARGET_OFFSET,
-                top: centerY - bubbleHeight / 2,
-            };
+            candidates.push(
+                { left: centerX - (bubbleWidth / 2), top: targetRect.top - bubbleHeight - BUBBLE_GAP },
+                { left: centerX - (bubbleWidth / 2), top: targetRect.bottom + BUBBLE_GAP },
+                { left: targetRect.left - bubbleWidth - BUBBLE_TARGET_OFFSET, top: centerY - (bubbleHeight / 2) },
+                { left: targetRect.right + BUBBLE_TARGET_OFFSET, top: centerY - (bubbleHeight / 2) },
+            );
+        } else if (type === 'intern') {
+            candidates.push(
+                { left: centerX - (bubbleWidth / 2), top: targetRect.top - bubbleHeight - BUBBLE_GAP },
+                { left: centerX - (bubbleWidth / 2), top: targetRect.bottom + BUBBLE_GAP },
+                { left: targetRect.right + BUBBLE_GAP, top: centerY - (bubbleHeight / 2) },
+                { left: targetRect.left - bubbleWidth - BUBBLE_GAP, top: centerY - (bubbleHeight / 2) },
+            );
+        } else if (type === 'dps') {
+            candidates.push(
+                { left: centerX - (bubbleWidth / 2), top: targetRect.bottom + BUBBLE_GAP },
+                { left: targetRect.left - bubbleWidth - BUBBLE_GAP, top: centerY - (bubbleHeight / 2) },
+                { left: targetRect.right + BUBBLE_GAP, top: centerY - (bubbleHeight / 2) },
+                { left: centerX - (bubbleWidth / 2), top: targetRect.top - bubbleHeight - BUBBLE_GAP },
+            );
+        } else {
+            candidates.push(
+                { left: centerX - (bubbleWidth / 2), top: targetRect.bottom + BUBBLE_GAP },
+                { left: centerX - (bubbleWidth / 2), top: targetRect.top - bubbleHeight - BUBBLE_GAP },
+            );
         }
-        if (type === 'intern') {
-            return {
-                left: targetRect.right + BUBBLE_TARGET_OFFSET,
-                top: centerY - bubbleHeight / 2,
-            };
+
+        let best = null;
+        for (let i = 0; i < candidates.length; i += 1) {
+            const candidate = scoreBubbleCandidate(candidates[i], bubbleWidth, bubbleHeight, targetRect, i, type);
+            if (!best || candidate.score < best.score) {
+                best = candidate;
+            }
         }
+
+        if (best) {
+            return { left: best.left, top: best.top };
+        }
+
+        return { left: centerX - (bubbleWidth / 2), top: targetRect.bottom + BUBBLE_GAP };
+    }
+
+    function scoreBubbleCandidate(candidate, width, height, targetRect, priority, type = '') {
+        const minX = BUBBLE_VIEWPORT_MARGIN;
+        const maxX = window.innerWidth - width - BUBBLE_VIEWPORT_MARGIN;
+        const minY = BUBBLE_VIEWPORT_MARGIN;
+        const maxY = window.innerHeight - height - BUBBLE_VIEWPORT_MARGIN;
+
+        const clampedLeft = clamp(candidate.left, minX, maxX);
+        const clampedTop = clamp(candidate.top, minY, maxY);
+        const overflowPenalty = Math.abs(candidate.left - clampedLeft) + Math.abs(candidate.top - clampedTop);
+        const overlapPenalty = getRectOverlapArea(
+            { left: clampedLeft, top: clampedTop, right: clampedLeft + width, bottom: clampedTop + height },
+            targetRect,
+        );
+        let extraPenalty = 0;
         if (type === 'dps') {
-            return {
-                left: targetRect.right + BUBBLE_GAP,
-                top: targetRect.top - bubbleHeight / 2,
-            };
+            const dataDisplay = document.getElementById('data-display');
+            if (dataDisplay) {
+                const displayRect = dataDisplay.getBoundingClientRect();
+                const displayOverlap = getRectOverlapArea(
+                    { left: clampedLeft, top: clampedTop, right: clampedLeft + width, bottom: clampedTop + height },
+                    displayRect,
+                );
+                extraPenalty += displayOverlap * 8;
+            }
         }
 
         return {
-            left: centerX - bubbleWidth / 2,
-            top: targetRect.bottom + BUBBLE_GAP,
+            left: clampedLeft,
+            top: clampedTop,
+            score: (overflowPenalty * 40) + overlapPenalty + extraPenalty + (priority * 8),
         };
     }
 
-    function getTargetPoint(targetRect, type) {
+    function getRectOverlapArea(a, b) {
+        const overlapX = Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left));
+        const overlapY = Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top));
+        return overlapX * overlapY;
+    }
+
+    function getTargetPoint(targetRect, type, startPoint = null) {
         if (type === 'intern') {
+            const x = targetRect.right + 8;
+            const y = targetRect.top + targetRect.height * 0.52;
             return {
-                x: Math.round(targetRect.right),
-                y: Math.round(targetRect.top + targetRect.height / 2),
+                x: Math.round(clamp(x, 20, window.innerWidth - 20)),
+                y: Math.round(clamp(y, 20, window.innerHeight - 20)),
             };
         }
         if (type === 'dps') {
+            const x = targetRect.left - 22;
+            const y = targetRect.top + (targetRect.height * 0.58);
             return {
-                x: Math.round(targetRect.right - 8),
-                y: Math.round(targetRect.top + targetRect.height / 2),
+                x: Math.round(x),
+                y: Math.round(y),
+            };
+        }
+        if (type === 'orb') {
+            const centerX = targetRect.left + targetRect.width / 2;
+            const centerY = targetRect.top + targetRect.height / 2;
+            const radius = Math.max(16, (Math.min(targetRect.width, targetRect.height) * 0.46));
+
+            const vectorX = (startPoint ? startPoint.x : targetRect.left) - centerX;
+            const vectorY = (startPoint ? startPoint.y : centerY) - centerY;
+            const length = Math.hypot(vectorX, vectorY) || 1;
+            const ux = vectorX / length;
+            const uy = vectorY / length;
+
+            return {
+                x: Math.round(centerX + (ux * (radius - 2))),
+                y: Math.round(centerY + (uy * (radius - 2))),
             };
         }
         return {
@@ -266,36 +339,25 @@ const TutorialOverlay = (() => {
         };
     }
 
-    function getBubbleAnchorPoint(bubbleRect, targetPoint) {
-        const centerX = bubbleRect.left + bubbleRect.width / 2;
-        const centerY = bubbleRect.top + bubbleRect.height / 2;
-        const deltaX = targetPoint.x - centerX;
-        const deltaY = targetPoint.y - centerY;
-
-        if (Math.abs(deltaX) >= Math.abs(deltaY)) {
-            return {
-                x: Math.round(deltaX >= 0 ? bubbleRect.right : bubbleRect.left),
-                y: Math.round(centerY),
-            };
-        }
-
-        return {
-            x: Math.round(centerX),
-            y: Math.round(deltaY >= 0 ? bubbleRect.bottom : bubbleRect.top),
-        };
-    }
-
     function getFallbackArrowStart(targetRect, type) {
         if (type === 'intern') {
+            const desiredX = targetRect.right + 138;
+            const desiredY = targetRect.top + targetRect.height * 0.52;
+            const x = clamp(desiredX, 30, window.innerWidth - 140);
+            const y = clamp(desiredY, 30, window.innerHeight - 30);
             return {
-                x: Math.round(targetRect.right + 110),
-                y: Math.round(targetRect.top + targetRect.height / 2),
+                x: Math.round(x),
+                y: Math.round(y),
             };
         }
         if (type === 'dps') {
+            const desiredX = targetRect.left - 170;
+            const desiredY = targetRect.top + (targetRect.height * 0.95);
+            const x = clamp(desiredX, 30, window.innerWidth - 140);
+            const y = clamp(desiredY, 30, window.innerHeight - 30);
             return {
-                x: Math.round(targetRect.right + 90),
-                y: Math.round(targetRect.top + 30),
+                x: Math.round(x),
+                y: Math.round(y),
             };
         }
         return {
@@ -304,30 +366,85 @@ const TutorialOverlay = (() => {
         };
     }
 
-    function getArrowControlPoint(startPoint, endPoint, type) {
-        const midX = (startPoint.x + endPoint.x) / 2;
-        const midY = (startPoint.y + endPoint.y) / 2;
-        const distance = Math.hypot(endPoint.x - startPoint.x, endPoint.y - startPoint.y);
-        const curve = Math.max(24, Math.min(70, distance * 0.25));
-
-        if (type === 'intern') {
-            return { x: Math.round(midX), y: Math.round(midY + curve * 0.4) };
-        }
-        if (type === 'dps') {
-            return { x: Math.round(midX), y: Math.round(midY - curve * 0.2) };
-        }
-        return { x: Math.round(midX), y: Math.round(midY - curve * 0.4) };
+    function seededUnit(seed, offset = 0) {
+        const x = Math.sin((seed + 1 + offset) * 12.9898) * 43758.5453;
+        return x - Math.floor(x);
     }
 
-    function buildArrowHeadPath(endX, endY, angle, size, spread) {
-        const x1 = endX - size * Math.cos(angle - spread);
-        const y1 = endY - size * Math.sin(angle - spread);
-        const x2 = endX - size * Math.cos(angle + spread);
-        const y2 = endY - size * Math.sin(angle + spread);
-        return `M ${x1} ${y1} L ${endX} ${endY} L ${x2} ${y2}`;
+    function getOrbArrowStart(targetRect, clickSeed) {
+        const centerX = targetRect.left + (targetRect.width / 2);
+        const centerY = targetRect.top + (targetRect.height / 2);
+
+        const angle = seededUnit(clickSeed, 0) * Math.PI * 2;
+        const distanceFactor = 1.1 + (seededUnit(clickSeed, 13) * 0.6);
+        const radius = Math.max(targetRect.width, targetRect.height) * distanceFactor;
+
+        const rawX = centerX + (Math.cos(angle) * radius);
+        const rawY = centerY + (Math.sin(angle) * radius);
+
+        return {
+            x: Math.round(clamp(rawX, 24, window.innerWidth - 24)),
+            y: Math.round(clamp(rawY, 24, window.innerHeight - 24)),
+        };
     }
 
-    function showNarrative(text, step) {
+    function getArrowStartPoint(targetRect, type, context = {}) {
+        if (type === 'orb') {
+            const clickSeed = Number(context.clickSeed ?? 0);
+            if (currentArrowStartPoint && currentArrowSeed === clickSeed) {
+                return currentArrowStartPoint;
+            }
+            currentArrowSeed = clickSeed;
+            currentArrowStartPoint = getOrbArrowStart(targetRect, clickSeed);
+            return currentArrowStartPoint;
+        }
+
+        currentArrowSeed = null;
+        currentArrowStartPoint = null;
+        return getFallbackArrowStart(targetRect, type);
+    }
+
+    function clamp(value, min, max) {
+        return Math.max(min, Math.min(max, value));
+    }
+
+    function updateArrowLayout(startPoint, endPoint) {
+        if (!arrowEl) return;
+
+        const targetVectorX = endPoint.x - startPoint.x;
+        const targetVectorY = endPoint.y - startPoint.y;
+        const targetLength = Math.hypot(targetVectorX, targetVectorY);
+
+        if (targetLength < 1) {
+            arrowEl.style.display = 'none';
+            return;
+        }
+
+        const scale = clamp(targetLength / ARROW_SOURCE_LENGTH, 0.55, 1.8);
+        const width = ARROW_VIEWBOX_WIDTH * scale;
+        const height = ARROW_VIEWBOX_HEIGHT * scale;
+        const startOffsetX = ARROW_SOURCE_START.x * scale;
+        const startOffsetY = ARROW_SOURCE_START.y * scale;
+        const left = Math.round(startPoint.x - startOffsetX);
+        const top = Math.round(startPoint.y - startOffsetY);
+        const targetAngle = Math.atan2(targetVectorY, targetVectorX);
+        const rotationDeg = (targetAngle - ARROW_SOURCE_ANGLE) * (180 / Math.PI);
+
+        arrowEl.style.display = 'block';
+        arrowEl.style.left = `${left}px`;
+        arrowEl.style.top = `${top}px`;
+        arrowEl.style.width = `${Math.round(width)}px`;
+        arrowEl.style.height = `${Math.round(height)}px`;
+        arrowEl.style.transformOrigin = `${startOffsetX}px ${startOffsetY}px`;
+        arrowEl.style.transform = `rotate(${rotationDeg}deg)`;
+
+        arrowEl.dataset.startX = `${Math.round(startPoint.x)}`;
+        arrowEl.dataset.startY = `${Math.round(startPoint.y)}`;
+        arrowEl.dataset.endX = `${Math.round(endPoint.x)}`;
+        arrowEl.dataset.endY = `${Math.round(endPoint.y)}`;
+    }
+
+    function showNarrative(text, step, context = {}) {
         let container = document.getElementById('narrative-overlay');
         if (!container) {
             container = document.createElement('div');
@@ -341,8 +458,18 @@ const TutorialOverlay = (() => {
 
         // step mapping: 2->mantra-1, 3->mantra-2, 4+->mantra-3
         let mantraClass = 'mantra-1';
+        let narrativeStepClass = 'narrative-step-2';
         if (step === 3) mantraClass = 'mantra-2';
-        if (step >= 4) mantraClass = 'mantra-3';
+        if (step === 3) narrativeStepClass = 'narrative-step-3';
+        if (step >= 4) {
+            mantraClass = 'mantra-3';
+            narrativeStepClass = 'narrative-step-4';
+        }
+        container.className = `narrative-overlay ${narrativeStepClass}`;
+
+        const nextOpacity = Number(context.narrativeOpacity);
+        const narrativeOpacity = Number.isFinite(nextOpacity) ? clamp(nextOpacity, 0, 1) : 1;
+        container.style.opacity = `${narrativeOpacity}`;
 
         const existingText = container.querySelector('.mantra-text');
         if (existingText) {

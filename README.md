@@ -32,3 +32,17 @@ Open: `http://127.0.0.1:8000`
 ## Browser test contract
 
 Tests should use `window.__SUMMAN_TEST_API__`.
+
+## Testing
+
+Run full suite:
+
+```bash
+python -m pytest --tb=short -vv -s
+```
+
+Audio click SFX regression (press/release + variant rotation):
+
+```bash
+python -m pytest --tb=short -vv -s tests/unit/features/test_feature_audio_click_sfx.py
+```

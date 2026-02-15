@@ -1,10 +1,20 @@
 ﻿import * as Achievements from '../../content/achievements.js';
 import * as Lang from '../../content/i18n/index.js';
 import * as Utils from '../../infra/number-formatters.js';
+import { createClickSfx } from './click-sfx.js';
 
 export function createUiFeedback({ elements, getState, renderAchievements, showModal }) {
   let achievementQueue = [];
   let isShowingAchievement = false;
+  const clickSfx = createClickSfx();
+
+  function playClickPress(pointerId) {
+    clickSfx.playPress(pointerId);
+  }
+
+  function playClickRelease(pointerId) {
+    clickSfx.playRelease(pointerId);
+  }
 
   function showAchievement(achievement) {
     achievementQueue.push(achievement);
@@ -153,6 +163,8 @@ export function createUiFeedback({ elements, getState, renderAchievements, showM
     showBugReport,
     showOfflineModal,
     showPrestigeAnimation,
+    playClickPress,
+    playClickRelease,
     animateClick,
     showSaveIndicator,
   };

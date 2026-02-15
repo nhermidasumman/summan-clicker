@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 100" role="img" aria-labelledby="title desc">
+  <title id="title">Data Stream Arrow</title>
+  <desc id="desc">Parallel data lanes feeding into a directional arrow head.</desc>
+  <style>
+    .lane {
+      fill: none;
+      stroke: #7da716;
+      stroke-width: 7;
+      stroke-linecap: round;
+    }
+    .lane.top { opacity: 0.6; }
+    .lane.mid { opacity: 0.85; }
+    .lane.bot { opacity: 0.6; }
+    .packet {
+      fill: #d7ff88;
+      rx: 2;
+      ry: 2;
+      animation: packetRun 1.5s linear infinite;
+    }
+    .packet.p2 { animation-delay: 0.3s; }
+    .packet.p3 { animation-delay: 0.6s; }
+    .packet.p4 { animation-delay: 0.9s; }
+    .head {
+      fill: #9ac31c;
+      animation: headPulse 1.5s ease-in-out infinite;
+      transform-origin: 248px 50px;
+    }
+    @keyframes packetRun {
+      0% { transform: translateX(0); opacity: 0; }
+      15% { opacity: 1; }
+      85% { opacity: 1; }
+      100% { transform: translateX(188px); opacity: 0; }
+    }
+    @keyframes headPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .packet, .head { animation: none; }
+    }
+  </style>
+  <g>
+    <line class="lane top" x1="24" y1="30" x2="226" y2="42"/>
+    <line class="lane mid" x1="24" y1="50" x2="226" y2="50"/>
+    <line class="lane bot" x1="24" y1="70" x2="226" y2="58"/>
+    <rect class="packet" x="30" y="24" width="10" height="6"/>
+    <rect class="packet p2" x="40" y="47" width="12" height="6"/>
+    <rect class="packet p3" x="34" y="66" width="9" height="6"/>
+    <rect class="packet p4" x="28" y="48" width="7" height="4"/>
+    <path class="head" d="M222 20L296 50L222 80L246 50Z"/>
+  </g>
+</svg>

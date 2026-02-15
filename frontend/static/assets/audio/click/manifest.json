@@ -1,0 +1,158 @@
+{
+  "pack": "clipper-soft-variations-v2-wide",
+  "license": "CC0-1.0",
+  "sources": [
+    {
+      "name": "Kenney Interface Sounds",
+      "url": "https://kenney.nl/assets/interface-sounds",
+      "repo": "https://github.com/Calinou/kenney-interface-sounds",
+      "license": "CC0 1.0"
+    }
+  ],
+  "variants": [
+    {
+      "id": "clipper_soft",
+      "label": "Clipper Soft",
+      "description": "Perfil base-balanced: variacion amplia de timbre y envolvente.",
+      "press": "/static/assets/audio/click/variant_01_press.wav",
+      "release": "/static/assets/audio/click/variant_01_release.wav",
+      "press_duration_ms": 114,
+      "release_duration_ms": 68,
+      "source_pack": "kenney-derived",
+      "source_press": "click_001.wav",
+      "source_release": "tick_001.wav"
+    },
+    {
+      "id": "clipper_soft_02",
+      "label": "Clipper Soft 02",
+      "description": "Perfil warm-thick: variacion amplia de timbre y envolvente.",
+      "press": "/static/assets/audio/click/variant_02_press.wav",
+      "release": "/static/assets/audio/click/variant_02_release.wav",
+      "press_duration_ms": 126,
+      "release_duration_ms": 84,
+      "source_pack": "kenney-derived",
+      "source_press": "click_001.wav",
+      "source_release": "tick_001.wav"
+    },
+    {
+      "id": "clipper_soft_03",
+      "label": "Clipper Soft 03",
+      "description": "Perfil bright-snap: variacion amplia de timbre y envolvente.",
+      "press": "/static/assets/audio/click/variant_03_press.wav",
+      "release": "/static/assets/audio/click/variant_03_release.wav",
+      "press_duration_ms": 98,
+      "release_duration_ms": 58,
+      "source_pack": "kenney-derived",
+      "source_press": "click_001.wav",
+      "source_release": "tick_001.wav"
+    },
+    {
+      "id": "clipper_soft_04",
+      "label": "Clipper Soft 04",
+      "description": "Perfil dry-short: variacion amplia de timbre y envolvente.",
+      "press": "/static/assets/audio/click/variant_04_press.wav",
+      "release": "/static/assets/audio/click/variant_04_release.wav",
+      "press_duration_ms": 86,
+      "release_duration_ms": 54,
+      "source_pack": "kenney-derived",
+      "source_press": "click_001.wav",
+      "source_release": "tick_001.wav"
+    },
+    {
+      "id": "clipper_soft_05",
+      "label": "Clipper Soft 05",
+      "description": "Perfil rounded-mid: variacion amplia de timbre y envolvente.",
+      "press": "/static/assets/audio/click/variant_05_press.wav",
+      "release": "/static/assets/audio/click/variant_05_release.wav",
+      "press_duration_ms": 118,
+      "release_duration_ms": 80,
+      "source_pack": "kenney-derived",
+      "source_press": "click_001.wav",
+      "source_release": "tick_001.wav"
+    },
+    {
+      "id": "clipper_soft_06",
+      "label": "Clipper Soft 06",
+      "description": "Perfil soft-dark: variacion amplia de timbre y envolvente.",
+      "press": "/static/assets/audio/click/variant_06_press.wav",
+      "release": "/static/assets/audio/click/variant_06_release.wav",
+      "press_duration_ms": 132,
+      "release_duration_ms": 92,
+      "source_pack": "kenney-derived",
+      "source_press": "click_001.wav",
+      "source_release": "tick_001.wav"
+    },
+    {
+      "id": "clipper_soft_07",
+      "label": "Clipper Soft 07",
+      "description": "Perfil crisp-light: variacion amplia de timbre y envolvente.",
+      "press": "/static/assets/audio/click/variant_07_press.wav",
+      "release": "/static/assets/audio/click/variant_07_release.wav",
+      "press_duration_ms": 92,
+      "release_duration_ms": 56,
+      "source_pack": "kenney-derived",
+      "source_press": "click_001.wav",
+      "source_release": "tick_001.wav"
+    },
+    {
+      "id": "clipper_soft_08",
+      "label": "Clipper Soft 08",
+      "description": "Perfil metallic-edge: variacion amplia de timbre y envolvente.",
+      "press": "/static/assets/audio/click/variant_08_press.wav",
+      "release": "/static/assets/audio/click/variant_08_release.wav",
+      "press_duration_ms": 102,
+      "release_duration_ms": 64,
+      "source_pack": "kenney-derived",
+      "source_press": "click_001.wav",
+      "source_release": "tick_001.wav"
+    },
+    {
+      "id": "clipper_soft_09",
+      "label": "Clipper Soft 09",
+      "description": "Perfil papery-click: variacion amplia de timbre y envolvente.",
+      "press": "/static/assets/audio/click/variant_09_press.wav",
+      "release": "/static/assets/audio/click/variant_09_release.wav",
+      "press_duration_ms": 120,
+      "release_duration_ms": 86,
+      "source_pack": "kenney-derived",
+      "source_press": "click_001.wav",
+      "source_release": "tick_001.wav"
+    },
+    {
+      "id": "clipper_soft_10",
+      "label": "Clipper Soft 10",
+      "description": "Perfil tight-attack: variacion amplia de timbre y envolvente.",
+      "press": "/static/assets/audio/click/variant_10_press.wav",
+      "release": "/static/assets/audio/click/variant_10_release.wav",
+      "press_duration_ms": 88,
+      "release_duration_ms": 52,
+      "source_pack": "kenney-derived",
+      "source_press": "click_001.wav",
+      "source_release": "tick_001.wav"
+    },
+    {
+      "id": "clipper_soft_11",
+      "label": "Clipper Soft 11",
+      "description": "Perfil velvet-soft: variacion amplia de timbre y envolvente.",
+      "press": "/static/assets/audio/click/variant_11_press.wav",
+      "release": "/static/assets/audio/click/variant_11_release.wav",
+      "press_duration_ms": 138,
+      "release_duration_ms": 98,
+      "source_pack": "kenney-derived",
+      "source_press": "click_001.wav",
+      "source_release": "tick_001.wav"
+    },
+    {
+      "id": "clipper_soft_12",
+      "label": "Clipper Soft 12",
+      "description": "Perfil hybrid-bite: variacion amplia de timbre y envolvente.",
+      "press": "/static/assets/audio/click/variant_12_press.wav",
+      "release": "/static/assets/audio/click/variant_12_release.wav",
+      "press_duration_ms": 108,
+      "release_duration_ms": 70,
+      "source_pack": "kenney-derived",
+      "source_press": "click_001.wav",
+      "source_release": "tick_001.wav"
+    }
+  ]
+}

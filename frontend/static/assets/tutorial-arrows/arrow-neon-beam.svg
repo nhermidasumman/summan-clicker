@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 100" role="img" aria-labelledby="title desc">
+  <title id="title">Neon Beam Arrow</title>
+  <desc id="desc">High contrast neon arrow for first click guidance in dark UI.</desc>
+  <defs>
+    <linearGradient id="beamGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#74A90C"/>
+      <stop offset="50%" stop-color="#9AC31C"/>
+      <stop offset="100%" stop-color="#B8E65A"/>
+    </linearGradient>
+    <filter id="neonGlow" x="-30%" y="-60%" width="160%" height="220%">
+      <feGaussianBlur stdDeviation="2.5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <style>
+    .track {
+      fill: none;
+      stroke: url(#beamGrad);
+      stroke-width: 12;
+      stroke-linecap: round;
+      stroke-dasharray: 18 10;
+      animation: dashFlow 1.3s linear infinite;
+      filter: url(#neonGlow);
+    }
+    .head {
+      fill: url(#beamGrad);
+      filter: url(#neonGlow);
+      transform-origin: 272px 50px;
+      animation: headPulse 1.3s ease-in-out infinite;
+    }
+    .spark {
+      fill: #d7ff8a;
+      animation: sparkRun 1.3s linear infinite;
+      filter: url(#neonGlow);
+    }
+    @keyframes dashFlow {
+      from { stroke-dashoffset: 0; }
+      to { stroke-dashoffset: -56; }
+    }
+    @keyframes headPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+    }
+    @keyframes sparkRun {
+      0% { transform: translateX(0); opacity: 0.15; }
+      20% { opacity: 1; }
+      100% { transform: translateX(210px); opacity: 0.2; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .track, .head, .spark { animation: none; }
+    }
+  </style>
+  <g>
+    <path class="track" d="M24 50H238"/>
+    <path class="head" d="M232 22L292 50L232 78Z"/>
+    <circle class="spark" cx="34" cy="50" r="4"/>
+  </g>
+</svg>

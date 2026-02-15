@@ -8,6 +8,7 @@
 - `frontend/static/js/ui`: rendering and UI behavior.
 - `frontend/static/js/infra`: persistence, constants, helpers.
 - `frontend/static/js/test-api`: stable browser API for automated tests.
+- `frontend/static/assets`: runtime static assets (images/audio/svg) served directly.
 
 ## Rules
 - UI must not own economy formulas.

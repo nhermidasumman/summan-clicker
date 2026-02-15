@@ -47,6 +47,8 @@ const UI = (() => {
     if (!areEventsBound) {
       bindDomEvents(elements, {
         onClickTarget: (x, y) => gameApi?.handleClick?.(x, y),
+        onClickTargetPress: (pointerId) => feedback?.playClickPress?.(pointerId),
+        onClickTargetRelease: (pointerId) => feedback?.playClickRelease?.(pointerId),
         onSwitchTab: switchTab,
         onSetBuyAmount: (amount) => {
           updateBuyButtons(amount);
