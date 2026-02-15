@@ -147,6 +147,14 @@ Protect these invariants:
 - Prestige formula and reset behavior remain stable unless explicitly requested.
 - Existing saves must continue loading.
 
+### Versioning Discipline (Mandatory)
+- Every user-visible improvement/fix must include a version bump before commit/push.
+- Keep frontend and backend versions synchronized:
+  - `frontend/static/js/app/version.js` (`GAME_VERSION`, e.g. `v0.2.1`)
+  - `backend/config.py` (`APP_VERSION`, e.g. `0.2.1`)
+- Unless the user requests a specific scheme, use semantic versioning and bump patch (`x.y.Z`) for incremental fixes.
+- Never push to `main` with functional changes while leaving version unchanged.
+
 ---
 
 ## Testing and Validation (Mandatory)
@@ -190,6 +198,7 @@ Request explicit user approval before:
 A change is complete only if:
 - Code follows current module architecture.
 - Contracts remain valid (`__SUMMAN_TEST_API__`, DOM contract, save schema).
+- Version is bumped and synchronized in frontend/backend version files.
 - Tests are added or updated where relevant.
 - Full test suite passes.
 - Visual verification passes.
