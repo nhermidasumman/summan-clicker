@@ -55,6 +55,10 @@ Original prompt: Continua
         - Updated `test_feature_tutorial_flow.py` to match new safe margins for arrows.
         - Verified with `pytest` and `verify_modular_bootstrap.py`.
 
+### [2026-02-15] Release v0.2.4
+- **Feature**: Added version number display in Settings modal (Mobile/Desktop).
+- **Bump**: Version updated to 0.2.4.
+
 ### [2026-02-15] Release v0.2.3
 - **Fix**: Resolved mobile score visibility issue by anchoring content to top with safe padding and optimizing typography.
 - **Bump**: Version updated to 0.2.3.
