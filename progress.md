@@ -55,6 +55,10 @@ Original prompt: Continua
         - Updated `test_feature_tutorial_flow.py` to match new safe margins for arrows.
         - Verified with `pytest` and `verify_modular_bootstrap.py`.
 
+### [2026-02-15] Release v0.2.3
+- **Fix**: Resolved mobile score visibility issue by anchoring content to top with safe padding and optimizing typography.
+- **Bump**: Version updated to 0.2.3.
+
 ### [2026-02-15] Release v0.2.2
 - **Fix**: Adjust mobile tutorial bubble positioning to avoid blocking the score (header) and buttons (footer).
 - **Bump**: Version updated to 0.2.2.

@@ -1548,7 +1548,10 @@ body {
     #center-panel {
         /* 40% of vertical space for clicking/watching */
         height: 40%;
-        padding: 10px;
+        padding: 30px 10px 10px 10px;
+        /* More top padding for safety */
+        justify-content: flex-start;
+        /* Anchor to top so score is never cut off */
     }
 
     .data-counter {
@@ -1597,7 +1600,18 @@ body {
 
     .data-counter {
         font-size: 32px;
-        margin-bottom: 5px;
+        margin-bottom: 2px;
+        /* Tighten up */
+        line-height: 1.1;
+        /* Ensure no clipping from line-height */
+    }
+
+    .data-label {
+        font-size: 10px;
+        /* Reduced specific size for mobile */
+        letter-spacing: 1px;
+        margin-top: 2px;
+        opacity: 0.8;
     }
 
     .click-orb {
@@ -2160,6 +2174,7 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
+
     .narrative-overlay::before,
     .narrative-overlay::after,
     .mantra-1,
