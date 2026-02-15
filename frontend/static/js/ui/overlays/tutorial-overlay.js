@@ -80,6 +80,11 @@ const TutorialOverlay = (() => {
             currentType = type;
 
             createElements(target, type, text, context);
+
+            // Auto-scroll to target on change (Improved Mobile UX)
+            if (target && typeof target.scrollIntoView === 'function') {
+                target.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+            }
         } else {
             // 4. Update Positions (Scroll/Resize)
             updatePositions(target, type, text, context);
@@ -217,6 +222,30 @@ const TutorialOverlay = (() => {
     }
 
     function getPreferredBubblePosition(targetRect, bubbleWidth, bubbleHeight, type) {
+        // Mobile Docking Logic
+        if (window.innerWidth <= 768) {
+            const centerY = targetRect.top + (targetRect.height / 2);
+            const windowHeight = window.innerHeight;
+            const margin = 16;
+
+            // If target is in top half, dock to bottom. Else dock to top.
+            // Exception: If type is 'dps' (which is at top), always dock bottom.
+            const dockBottom = (centerY < (windowHeight / 2)) || type === 'dps';
+
+            if (dockBottom) {
+                return {
+                    left: margin,
+                    top: windowHeight - bubbleHeight - margin - 20 // safe area for bottom nav/touches
+                };
+            } else {
+                return {
+                    left: margin,
+                    top: margin + 50 // safe area for top bar
+                };
+            }
+        }
+
+        // Desktop Logic (Original)
         const centerX = targetRect.left + targetRect.width / 2;
         const centerY = targetRect.top + targetRect.height / 2;
         const candidates = [];
@@ -304,11 +333,15 @@ const TutorialOverlay = (() => {
     }
 
     function getTargetPoint(targetRect, type, startPoint = null) {
+        const isMobile = window.innerWidth <= 768;
+
         if (type === 'intern') {
             const x = targetRect.right + 8;
             const y = targetRect.top + targetRect.height * 0.52;
+            // On mobile, reserve space on the right for the arrow tail if possible
+            const maxX = window.innerWidth - (isMobile ? 50 : 20);
             return {
-                x: Math.round(clamp(x, 20, window.innerWidth - 20)),
+                x: Math.round(clamp(x, 20, maxX)),
                 y: Math.round(clamp(y, 20, window.innerHeight - 20)),
             };
         }
@@ -343,10 +376,15 @@ const TutorialOverlay = (() => {
     }
 
     function getFallbackArrowStart(targetRect, type) {
+        const isMobile = window.innerWidth <= 768;
+
         if (type === 'intern') {
-            const desiredX = targetRect.right + 138;
+            const offset = isMobile ? 60 : 138;
+            const desiredX = targetRect.right + offset;
             const desiredY = targetRect.top + targetRect.height * 0.52;
-            const x = clamp(desiredX, 30, window.innerWidth - 140);
+            // Allow arrow start to be closer to edge on mobile to maintain distance from target
+            const maxX = window.innerWidth - (isMobile ? 10 : 140);
+            const x = clamp(desiredX, 30, maxX);
             const y = clamp(desiredY, 30, window.innerHeight - 30);
             return {
                 x: Math.round(x),
@@ -354,9 +392,10 @@ const TutorialOverlay = (() => {
             };
         }
         if (type === 'dps') {
-            const desiredX = targetRect.left - 170;
+            const offset = isMobile ? 60 : 170;
+            const desiredX = targetRect.left - offset;
             const desiredY = targetRect.top + (targetRect.height * 0.95);
-            const x = clamp(desiredX, 30, window.innerWidth - 140);
+            const x = clamp(desiredX, 30, window.innerWidth - (isMobile ? 20 : 140));
             const y = clamp(desiredY, 30, window.innerHeight - 30);
             return {
                 x: Math.round(x),
@@ -364,7 +403,7 @@ const TutorialOverlay = (() => {
             };
         }
         return {
-            x: Math.round(targetRect.left - 110),
+            x: Math.round(targetRect.left - (isMobile ? 60 : 110)),
             y: Math.round(targetRect.top + targetRect.height / 2),
         };
     }

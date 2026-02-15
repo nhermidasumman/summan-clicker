@@ -42,6 +42,19 @@ Original prompt: Continua
 - Re-ran full suite after decoupling changes: `26 passed`.
 - Re-ran visual bootstrap check and verified screenshot remains correct.
 
+### [2026-02-14] Responsive Tutorial Implementation
+- **Goal**: Make tutorial elements usable on mobile devices.
+- **Changes**:
+    - **CSS**: Added `@media (max-width: 768px)` styles for `.tutorial-bubble` (full width, bigger touch targets).
+    - **JS (`tutorial-overlay.js`)**:
+        - Implemented "Docked" positioning for bubbles on mobile (Top/Bottom of screen instead of floating).
+        - Added collision detection for arrows (prevent overlap with docked bubbles).
+        - Updated arrow start/end point logic to be safer on mobile edges.
+        - Added `scrollIntoView` to ensure targets are visible.
+    - **Tests**:
+        - Updated `test_feature_tutorial_flow.py` to match new safe margins for arrows.
+        - Verified with `pytest` and `verify_modular_bootstrap.py`.
+
 ## 2026-02-13 - Split pass (game-loop + renderer) and icon regression fix
 - Split runtime responsibilities out of `core/game-loop.js`:
   - Added `core/achievement-system.js` and moved unlock flow there.

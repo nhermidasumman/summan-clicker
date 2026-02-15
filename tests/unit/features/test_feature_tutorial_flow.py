@@ -234,7 +234,8 @@ def test_feature_tutorial_mobile_arrow_tip_alignment(page: Page):
 
             const r = row.getBoundingClientRect();
             const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
-            const expectedX = clamp(r.right + 8, 20, window.innerWidth - 20);
+            // Updated expectation: Production logic now reserves 50px on right for mobile arrow tail
+            const expectedX = clamp(r.right + 8, 20, window.innerWidth - 50);
             const expectedY = clamp(r.top + (r.height * 0.52), 20, window.innerHeight - 20);
             const tipX = Number(arrow.dataset.tipX || arrow.dataset.endX || NaN);
             const tipY = Number(arrow.dataset.tipY || arrow.dataset.endY || NaN);
