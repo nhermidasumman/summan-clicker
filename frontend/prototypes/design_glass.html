@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Summan - Future SaaS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-grad: radial-gradient(circle at 10% 20%, rgb(30, 0, 60), rgb(10, 5, 20));
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-main: #ffffff;
+            --text-muted: rgba(255, 255, 255, 0.6);
+            --accent: #b0fb5d;
+            --accent-glow: rgba(176, 251, 93, 0.4);
+            --card-radius: 20px;
+        }
+
+        body {
+            margin: 0;
+            background: #000;
+            background-image: var(--bg-grad);
+            color: var(--text-main);
+            font-family: 'Outfit', sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Ambient Background Orbs */
+        .ambient-orb {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.3;
+            z-index: -1;
+        }
+
+        .orb-1 {
+            background: #4f00ff;
+            top: -100px;
+            left: -100px;
+        }
+
+        .orb-2 {
+            background: #ff0055;
+            bottom: -100px;
+            right: -100px;
+        }
+
+        /* Main Glass Container */
+        .glass-dashboard {
+            width: 95vw;
+            height: 90vh;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--card-radius);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            display: grid;
+            grid-template-columns: 260px 1fr 320px;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            padding: 30px;
+            border-right: 1px solid var(--glass-border);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo {
+            font-weight: 700;
+            font-size: 24px;
+            letter-spacing: -1px;
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo::before {
+            content: "";
+            width: 20px;
+            height: 20px;
+            background: var(--accent);
+            border-radius: 6px;
+            display: block;
+        }
+
+        .menu-item {
+            padding: 12px 15px;
+            color: var(--text-muted);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .menu-item:hover,
+        .menu-item.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .badge {
+            font-size: 10px;
+            background: var(--accent);
+            color: black;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        /* Main Content */
+        .content {
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .hero-counter {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .counter-label {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+
+        .counter-value {
+            font-size: 72px;
+            font-weight: 700;
+            line-height: 1;
+            background: linear-gradient(180deg, #fff, #aaa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .transmute-btn {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            border: 1px solid var(--glass-border);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.01));
+            backdrop-filter: blur(10px);
+            color: white;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: 0.3s;
+            position: relative;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .transmute-btn::after {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, var(--accent-glow), transparent 60%);
+            opacity: 0;
+            transition: 0.3s;
+        }
+
+        .transmute-btn:hover {
+            transform: scale(1.05);
+            border-color: var(--accent);
+        }
+
+        .transmute-btn:hover::after {
+            opacity: 1;
+        }
+
+        .transmute-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Right Panel */
+        .market {
+            padding: 25px;
+            background: rgba(0, 0, 0, 0.2);
+            border-left: 1px solid var(--glass-border);
+            overflow-y: auto;
+        }
+
+        .section-header {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .market-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            padding: 15px;
+            border-radius: 16px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .market-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .card-title {
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .card-price {
+            font-size: 13px;
+            color: var(--accent);
+        }
+
+        .card-desc {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .progress-circle-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="ambient-orb orb-1"></div>
+    <div class="ambient-orb orb-2"></div>
+
+    <div class="glass-dashboard">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">SUMMAN</div>
+            <div class="menu-item active">
+                <span>Dashboard</span>
+            </div>
+            <div class="menu-item">
+                <span>Analytics</span>
+            </div>
+            <div class="menu-item">
+                <span>Team</span>
+                <span class="badge">3</span>
+            </div>
+            <div class="menu-item">
+                <span>Settings</span>
+            </div>
+
+            <div style="margin-top: auto;">
+                <div class="menu-item" style="background: rgba(255,0,0,0.1); color: #ff6b6b;">
+                    <span>System Status</span>
+                    <span style="width:8px; height:8px; background:#ff6b6b; border-radius:50%"></span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main -->
+        <main class="content">
+            <div class="hero-counter">
+                <div class="counter-label">Total Data Points</div>
+                <div class="counter-value">2,492,103</div>
+            </div>
+
+            <button class="transmute-btn">
+                Generate
+            </button>
+
+            <div
+                style="position: absolute; bottom: 40px; display: flex; gap: 20px; color: var(--text-muted); font-size: 12px;">
+                <span>Velocity: 342/s</span>
+                <span>•</span>
+                <span>Efficiency: 98%</span>
+            </div>
+        </main>
+
+        <!-- Right -->
+        <aside class="market">
+            <div class="section-header">
+                <span>Infrastructure</span>
+                <span style="color:white; cursor:pointer;">View All</span>
+            </div>
+
+            <div class="market-card">
+                <div class="card-top">
+                    <span class="card-title">Junior Developer</span>
+                    <span class="card-price">150</span>
+                </div>
+                <div class="card-desc">Generates basic code. Prone to errors but cheap.</div>
+            </div>
+
+            <div class="market-card">
+                <div class="card-top">
+                    <span class="card-title">Senior Architect</span>
+                    <span class="card-price">1.2k</span>
+                </div>
+                <div class="card-desc">High efficiency output. Reduces technical debt by 5%.</div>
+            </div>
+
+            <div class="market-card" style="opacity: 0.6;">
+                <div class="card-top">
+                    <span class="card-title">AI Cluster</span>
+                    <span class="card-price">50k</span>
+                </div>
+                <div class="card-desc">Locked. Requires Level 10 Research.</div>
+            </div>
+        </aside>
+    </div>
+</body>
+
+</html>

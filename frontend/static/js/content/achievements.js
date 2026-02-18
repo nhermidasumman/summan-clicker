@@ -6,6 +6,31 @@ import * as Lang from './i18n/index.js';
 
 const Achievements = (() => {
     const DEFINITIONS = [
+        {
+            id: 'story_hello_world', category: 'special', icon: '&#x1F44B;', threshold: 1,
+            nameEs: 'Hello World', nameEn: 'Hello World',
+            descEs: 'Escribe tu primera linea de codigo.', descEn: 'Write your first line of code.', bonus: 0.01,
+            checkType: 'clicks'
+        },
+        {
+            id: 'story_it_works', category: 'special', icon: '&#x1F9EA;', threshold: 1000,
+            nameEs: 'It works on my machine', nameEn: 'It works on my machine',
+            descEs: 'Alcanza 1,000 bugs acumulados.', descEn: 'Reach 1,000 accumulated bugs.', bonus: 0.03,
+            checkType: 'bugs'
+        },
+        {
+            id: 'story_spaghetti', category: 'special', icon: '&#x1F35D;', threshold: 100,
+            nameEs: 'Spaghetti Chef', nameEn: 'Spaghetti Chef',
+            descEs: 'Ten mas de 100 Internos y 0 Senior Devs.', descEn: 'Have 100+ Interns and 0 Senior Devs.', bonus: 0.04,
+            checkType: 'spaghetti'
+        },
+        {
+            id: 'story_vaporware', category: 'special', icon: '&#x1F525;', threshold: 1,
+            nameEs: 'Vaporware', nameEn: 'Vaporware',
+            descEs: 'Haz prestigio sin producir en la ultima hora.', descEn: 'Prestige with no production in the last hour.', bonus: 0.05,
+            checkType: 'vaporware'
+        },
+
         // === PRODUCTION ACHIEVEMENTS ===
         {
             id: 'prod_1', category: 'production', icon: '📊', threshold: 100,
@@ -217,11 +242,25 @@ const Achievements = (() => {
                 case 'dps':
                     unlocked = gameState.dps >= ach.threshold;
                     break;
+                case 'clicks':
+                    unlocked = (gameState.stats.totalClicks || 0) >= ach.threshold;
+                    break;
                 case 'prestige_count':
                     unlocked = gameState.stats.timesPrestiged >= ach.threshold;
                     break;
                 case 'event':
                     unlocked = (gameState.stats.events?.[ach.event] || 0) >= ach.threshold;
+                    break;
+                case 'bugs':
+                    unlocked = (gameState.bugs || 0) >= ach.threshold;
+                    break;
+                case 'spaghetti':
+                    unlocked = (gameState.buildings?.intern || 0) >= ach.threshold
+                        && (gameState.buildings?.senior || 0) === 0;
+                    break;
+                case 'vaporware':
+                    unlocked = (gameState.stats.timesPrestiged || 0) >= ach.threshold
+                        && (gameState.stats.lastHourDataEarned || 0) <= 0;
                     break;
                 default:
                     if (ach.category === 'clicks') {

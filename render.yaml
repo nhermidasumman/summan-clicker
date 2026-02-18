@@ -2,9 +2,24 @@ services:
   - type: web
     name: summan-clicker
     runtime: python
+    branch: main
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
     plan: free
     envVars:
+      - key: APP_ENV
+        value: production
+      - key: PYTHON_VERSION
+        value: "3.11.6"
+  - type: web
+    name: summan-clicker-test
+    runtime: python
+    branch: staging
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    plan: free
+    envVars:
+      - key: APP_ENV
+        value: testing
       - key: PYTHON_VERSION
         value: "3.11.6"

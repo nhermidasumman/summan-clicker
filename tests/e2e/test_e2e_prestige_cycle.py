@@ -10,10 +10,25 @@ def wait_ready(page: Page):
 def test_e2e_prestige_cycle(page: Page):
     wait_ready(page)
     page.evaluate('window.__SUMMAN_TEST_API__.reset()')
-    page.evaluate("window.__SUMMAN_TEST_API__.setState({ stats: { ...window.__SUMMAN_TEST_API__.getState().stats, totalDataAllTime: 25000000000 } })")
+
+    # Buy one boardroom upgrade first.
+    page.evaluate("""
+        window.__SUMMAN_TEST_API__.setState({
+            innovationPoints: 500,
+            stats: {
+                ...window.__SUMMAN_TEST_API__.getState().stats,
+                totalDataEarned: 5_000_000_000,
+                totalDataAllTime: 8_000_000_000
+            }
+        })
+    """)
+
+    page.click('#right-panel [data-action="buy-prestige-upgrade"]')
+    bought_before = page.evaluate('window.__SUMMAN_TEST_API__.getState().prestigeUpgrades.length')
 
     result = page.evaluate("window.__SUMMAN_TEST_API__.dispatch({ type: 'PRESTIGE' })")
     state = page.evaluate('window.__SUMMAN_TEST_API__.getState()')
 
     assert result is True
-    assert state['innovationPoints'] >= 5
+    assert state['innovationPoints'] >= 300
+    assert len(state['prestigeUpgrades']) == bought_before

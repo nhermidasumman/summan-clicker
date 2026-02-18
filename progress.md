@@ -180,3 +180,25 @@ Original prompt: Continua
 - Validation:
   - `python -m pytest --tb=short -vv -s` => 30 passed.
   - Visual check screenshot: `tools/qa/verify_tutorial_bubble_arrow_cohesion.png`.
+
+## 2026-02-16 - Release v0.2.7 Technical Debt Tycoon implementation
+- Implemented fixed-step logic loop (`100ms`) with render separation in `core/game-loop.js`.
+- Added modular systems:
+  - `core/debt-system.js`
+  - `core/crash-system.js`
+  - `core/refactor-system.js`
+  - `core/audio-alert-system.js`
+  - `infra/formulas.js` and `infra/decimal-adapter.js`
+- Implemented O(1) geometric building costs (next/bulk/max-affordable) and upgraded progression/prestige flow.
+- Added random decision events via `content/random-events.js` and pub/sub orchestration in `core/event-system.js`.
+- Added 12-building catalog with bug rates, new upgrades, and boardroom prestige upgrades.
+- Added 3-column UI layout and new contract IDs:
+  - `#tech-debt-meter`, `#bug-counter`, `#btn-refactor`, `#event-log`, `#crash-overlay`, `#reboot-button`, `#right-panel`.
+- Extended browser test API actions:
+  - `SET_BUGS`, `TRIGGER_REFACTOR`, `RUN_LOGIC_TICKS`, `FORCE_CRASH`, `REBOOT_CRASH`.
+- Upgraded save persistence to envelope format (`version`, `encoding`, `payload`) while keeping save schema version `2` and backward compatibility.
+- Synced versions to `0.2.7` (`frontend/static/js/app/version.js`, `backend/config.py`).
+- Validation:
+  - `python -m pytest --tb=short -vv -s` -> 44 passed
+  - `python tools/qa/verify_modular_bootstrap.py` -> pass
+  - Reviewed `tools/qa/verify_modular_bootstrap.png`.

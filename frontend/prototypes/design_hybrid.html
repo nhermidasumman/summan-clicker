@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Summan Hybrid - Prototype 4</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=VT323&display=swap"
+        rel="stylesheet">
+    <!-- Linking existing styles -->
+    <link rel="stylesheet" href="../static/css/style.css">
+    <style>
+        /* OVERRIDES FOR HYBRID PROTOTYPE */
+
+        /* 1. LAYOUT REARRANGEMENT (CSS GRID) */
+        body {
+            background-color: #1e1e1e;
+            /* Dark IDE Background */
+            color: #e6edf3;
+            overflow: hidden;
+        }
+
+        #game-container {
+            display: grid;
+            grid-template-columns: 25% 50% 25%;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            gap: 2px;
+            background: #111;
+            /* Gap color */
+        }
+
+        /* RESETTING PANEL WIDTHS FROM FLEX TO GRID */
+        #left-panel,
+        #center-panel,
+        #right-panel {
+            width: auto;
+            min-width: 0;
+            flex: none;
+            height: 100%;
+            background: #1e1e1e;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* LEFT PANEL: WORKSPACE (Moved Clicker Here) */
+        #left-panel {
+            grid-column: 1;
+            padding: 20px;
+            align-items: center;
+            border-right: 1px solid #333;
+        }
+
+        /* CENTER PANEL: ENVIRONMENT (Log & Visuals) */
+        #center-panel {
+            grid-column: 2;
+            padding: 0;
+            position: relative;
+            background: #252526;
+        }
+
+        /* RIGHT PANEL: MANAGEMENT (Buildings/Upgrades) */
+        #right-panel {
+            grid-column: 3;
+            border-left: 1px solid #333;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 2. ELEMENT SWAPPING */
+
+        /* Moving Data Display to Top Left */
+        .workspace-header {
+            width: 100%;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        /* Modifying Click Area for Enter Key */
+        #click-area {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            transform: scale(1.2);
+            margin-top: 20px;
+        }
+
+        /* ENTER KEY ASSET */
+        .enter-key-container {
+            width: 160px;
+            height: 160px;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        .enter-key-container:active {
+            transform: scale(0.95);
+        }
+
+        .enter-svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 0 10px rgba(154, 195, 28, 0.2));
+        }
+
+        .enter-shape {
+            fill: #2d2d2d;
+            stroke: #9ac31c;
+            /* Green Border */
+            stroke-width: 2;
+        }
+
+        .enter-shadow {
+            fill: #1a1a1a;
+        }
+
+        .enter-text {
+            fill: #9ac31c;
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        /* 3. SYSTEM LOG STYLE (Themed) */
+        .retro-log-container {
+            flex: 1;
+            background: #1e1e1e;
+            /* Match IDE background */
+            font-family: 'Inter', sans-serif;
+            /* Match main font */
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border-top: 1px solid #333;
+            width: 100%;
+            height: 50%;
+        }
+
+        .retro-log-title {
+            color: #9ac31c;
+            /* Brand Green */
+            background: #252526;
+            padding: 8px 15px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #333;
+            margin-bottom: 0;
+        }
+
+        #event-log {
+            padding: 10px 15px;
+            overflow-y: auto;
+        }
+
+        .retro-entry {
+            font-size: 13px;
+            color: #e6edf3;
+            /* Main Text Color */
+            opacity: 1;
+            margin-bottom: 6px;
+            text-shadow: none;
+            font-family: 'Fira Code', monospace;
+            /* Keep monospace for log entries only, or use Inter if preferred. Let's use Fira for "code-like" feel but clean. */
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 2px;
+        }
+
+        .retro-entry:last-child {
+            border-bottom: none;
+        }
+
+        .retro-entry::before {
+            content: "ℹ ";
+            color: #55B8B2;
+            /* Teal Info */
+            font-style: normal;
+        }
+
+        /* VISUALIZATION AREA (Placeholder for Canvas) */
+        .visual-area {
+            flex: 1;
+            width: 100%;
+            background: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h40v40H0V0zm1 1h38v38H1V1z' fill='%23333' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #444;
+            font-family: 'Fira Code', monospace;
+        }
+
+        /* RIGHT PANEL ADJUSTMENTS */
+        .management-header {
+            background: #252526;
+            padding: 10px;
+            display: flex;
+            gap: 10px;
+            border-bottom: 1px solid #333;
+        }
+
+        .mgmt-tab {
+            padding: 5px 10px;
+            color: #999;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .mgmt-tab.active {
+            color: #fff;
+            border-bottom: 2px solid #9ac31c;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- TOP BAR (Restored) -->
+    <header id="top-bar"
+        style="grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; height: 50px; background: #252526; border-bottom: 1px solid #333; padding: 0 20px;">
+        <div class="top-bar-left" style="display: flex; align-items: center; gap: 10px;">
+            <div style="font-weight: 700; color: #fff;">SUMMAN IDE</div>
+        </div>
+        <div class="top-bar-right" style="display: flex; gap: 5px;">
+            <!-- Using original button classes structure -->
+            <button class="top-btn"
+                style="background:#333; border:1px solid #444; color:#fff; padding:5px 10px; cursor:pointer;">IPO</button>
+            <button class="top-btn"
+                style="background:#333; border:1px solid #444; color:#fff; padding:5px 10px; cursor:pointer;">Stats</button>
+            <button class="top-btn"
+                style="background:#333; border:1px solid #444; color:#fff; padding:5px 10px; cursor:pointer;">Cfg</button>
+        </div>
+    </header>
+
+    <div id="game-container" style="height: calc(100vh - 50px);">
+        <!-- 1. LEFT: WORKSPACE -->
+        <aside id="left-panel">
+            <div class="workspace-header">
+                <!-- Data Counter (Moved from Center) -->
+                <div id="data-display" style="text-align:center;">
+                    <div id="data-counter" class="data-counter" style="font-size:42px;">0</div>
+                    <div class="data-label">DATOS</div>
+                    <div class="data-rates">
+                        <span id="dps-display">0/sec</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- THE ENTER KEY (Replacing Orb) -->
+            <div id="click-area">
+                <div class="enter-key-container" id="click-target">
+                    <svg class="enter-svg" viewBox="0 0 100 100">
+                        <!-- ISO Enter Key Shape -->
+                        <path class="enter-shadow" d="M35,20 L85,20 L85,85 L20,85 L20,55 L35,55 Z"
+                            transform="translate(4,4)" />
+                        <path class="enter-shape" d="M35,20 L85,20 L85,85 L20,85 L20,55 L35,55 Z" />
+                        <!-- Centered better in the main body (x=60, y=55 is visual center of bounding box roughly) -->
+                        <text x="58" y="58" class="enter-text" text-anchor="middle" font-size="12">COMMIT</text>
+                        <!-- Arrow Icon - Moved to bottom left corner area -->
+                        <path d="M45,72 L35,72 M35,72 L40,67 M35,72 L40,77" stroke="#9ac31c" stroke-width="2"
+                            fill="none" />
+                    </svg>
+                </div>
+                <!-- Particles will spawn here -->
+                <div id="particle-container"></div>
+            </div>
+
+            <!-- Doom Bar (Moved from Right) -->
+            <div style="width:100%; margin-top:40px; padding:0 10px;">
+                <div
+                    style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:5px; color:#888;">
+                    <span>TECHNICAL DEBT</span>
+                    <span>0%</span>
+                </div>
+                <div style="height:8px; background:#111; border-radius:4px; overflow:hidden;">
+                    <div style="width:0%; height:100%; background:linear-gradient(90deg, #9ac31c, #f18a00);"></div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 2. CENTER: ENVIRONMENT -->
+        <section id="center-panel">
+            <!-- Visual Area -->
+            <div class="visual-area">
+                [ VISUALIZATION CANVAS ]
+            </div>
+
+            <!-- RETRO LOG (Replaces standard event log) -->
+            <div class="retro-log-container">
+                <div class="retro-log-title">SYSTEM_LOG</div>
+                <div id="event-log">
+                    <div class="retro-entry">System initialized...</div>
+                    <div class="retro-entry">Repository connected.</div>
+                    <div class="retro-entry">Waiting for input...</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. RIGHT: MANAGEMENT -->
+        <aside id="right-panel">
+
+            <!-- UPGRADES (ALWAYS VISIBLE) -->
+            <div id="upgrades-container" style="padding: 10px; border-bottom: 1px solid #333; background: #222;">
+                <div
+                    style="font-size: 11px; font-weight: 700; color: #888; margin-bottom: 8px; text-transform: uppercase;">
+                    AVAILABLE UPGRADES</div>
+                <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+                    <div
+                        style="width: 40px; height: 40px; background: #2a2d2e; border: 1px solid #444; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                        <span>⚡</span>
+                    </div>
+                    <div
+                        style="width: 40px; height: 40px; background: #2a2d2e; border: 1px solid #9ac31c; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 5px rgba(154, 195, 28, 0.2);">
+                        <span>💾</span>
+                    </div>
+                    <div
+                        style="width: 40px; height: 40px; opacity: 0.5; background: #2a2d2e; border: 1px solid #333; border-radius: 4px; display: flex; align-items: center; justify-content: center;">
+                        <span>🔒</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TABS FOR BUILDINGS / RESEARCH -->
+            <div class="management-header">
+                <div class="mgmt-tab active">INFRASTRUCTURE</div>
+                <div class="mgmt-tab">RESEARCH</div>
+            </div>
+
+            <!-- BUY AMOUNT BUTTONS (Restored) -->
+            <div id="buy-amount-bar" class="buy-amount-bar"
+                style="padding: 10px; display: flex; gap: 5px; border-bottom: 1px solid #333;">
+                <button class="buy-amount-btn active"
+                    style="flex:1; background:#444; border:none; color:white; padding:4px;">x1</button>
+                <button class="buy-amount-btn"
+                    style="flex:1; background:#252526; border:1px solid #333; color:#888; padding:4px;">x10</button>
+                <button class="buy-amount-btn"
+                    style="flex:1; background:#252526; border:1px solid #333; color:#888; padding:4px;">x100</button>
+                <button class="buy-amount-btn"
+                    style="flex:1; background:#252526; border:1px solid #333; color:#888; padding:4px;">Max</button>
+            </div>
+
+            <!-- Existing Buildings List Structure (Borrowed from original) -->
+            <div id="panel-buildings" class="tab-content active"
+                style="flex:1; overflow-y:auto; padding:10px; display:block;">
+                <!-- Mock Items to show layout -->
+                <div class="building-item"
+                    style="border-left: 3px solid #9ac31c; background: #252526; padding:10px; margin-bottom:5px; border-radius:4px; display: flex; align-items: center; gap: 10px;">
+                    <div style="font-size: 24px; min-width: 30px; text-align: center;">&#x1F9D1;&#x200D;&#x1F393;
+                    </div>
+                    <div style="flex: 1;">
+                        <div class="building-name" style="color:#e6edf3; font-weight:bold;">Junior Dev</div>
+                        <div class="building-cost" style="color:#9ac31c;">15 LOC</div>
+                    </div>
+                    <div style="font-size: 20px; font-weight: 800; color: #e6edf3;">12</div>
+                </div>
+
+                <div class="building-item"
+                    style="border-left: 3px solid #55B8B2; background: #252526; padding:10px; margin-bottom:5px; border-radius:4px; display: flex; align-items: center; gap: 10px;">
+                    <div style="font-size: 24px; min-width: 30px; text-align: center;">&#x1F40D;</div>
+                    <div style="flex: 1;">
+                        <div class="building-name" style="color:#e6edf3; font-weight:bold;">Python Script</div>
+                        <div class="building-cost" style="color:#e6edf3;">100 LOC</div>
+                    </div>
+                    <div style="font-size: 20px; font-weight: 800; color: #e6edf3;">5</div>
+                </div>
+
+                <div class="building-item"
+                    style="border-left: 3px solid #555; background: #252526; opacity:0.5; padding:10px; margin-bottom:5px; border-radius:4px; display: flex; align-items: center; gap: 10px;">
+                    <div style="font-size: 24px; min-width: 30px; text-align: center;">&#x1F504;</div>
+                    <div style="flex: 1;">
+                        <div class="building-name" style="color:#e6edf3; font-weight:bold;">DevOps Engineer</div>
+                        <div class="building-cost" style="color:#e7481d;">1.1k LOC</div>
+                    </div>
+                    <div style="font-size: 20px; font-weight: 800; color: #e6edf3;">0</div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+</body>
+
+</html>

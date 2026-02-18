@@ -34,7 +34,7 @@ export function bindDomEvents(elements, handlers = {}) {
         try {
           clickTarget.setPointerCapture(event.pointerId);
         } catch {
-          // Ignore capture failures on browser edge-cases.
+          // Ignore pointer capture failures.
         }
       }
       handlers.onClickTargetPress?.(event.pointerId);
@@ -86,6 +86,8 @@ export function bindDomEvents(elements, handlers = {}) {
   if (elements.btnStats) elements.btnStats.addEventListener('click', () => handlers.onShowStats?.());
   if (elements.btnSettings) elements.btnSettings.addEventListener('click', () => handlers.onShowSettings?.());
   if (elements.btnPrestige) elements.btnPrestige.addEventListener('click', () => handlers.onShowPrestige?.());
+  if (elements.btnRefactor) elements.btnRefactor.addEventListener('click', () => handlers.onRefactor?.());
+  if (elements.rebootButton) elements.rebootButton.addEventListener('click', () => handlers.onRebootCrash?.());
 
   if (elements.modalClose) elements.modalClose.addEventListener('click', () => handlers.onCloseModal?.());
   if (elements.modal) {
@@ -112,6 +114,14 @@ export function bindDomEvents(elements, handlers = {}) {
 
   if (elements.modalBody) {
     elements.modalBody.addEventListener('click', (event) => {
+      const actionElement = event.target.closest('[data-action]');
+      if (!actionElement) return;
+      handlers.onModalAction?.(actionElement);
+    });
+  }
+
+  if (elements.rightPanel) {
+    elements.rightPanel.addEventListener('click', (event) => {
       const actionElement = event.target.closest('[data-action]');
       if (!actionElement) return;
       handlers.onModalAction?.(actionElement);

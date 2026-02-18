@@ -8,6 +8,15 @@ function handlePrestige(gameApi, closeModal) {
   closeModal();
 }
 
+function handleRandomEventChoice(gameApi, actionElement, closeModal) {
+  if (!gameApi || !actionElement) return;
+  const eventId = actionElement.dataset.eventId;
+  const choiceId = actionElement.dataset.choiceId;
+  if (!eventId || !choiceId) return;
+  gameApi.resolveRandomEventChoice?.(eventId, choiceId);
+  closeModal();
+}
+
 function handleReset(gameApi, closeModal) {
   if (!gameApi) return;
   if (!confirm(Lang.t('confirm_reset'))) return;
@@ -76,6 +85,12 @@ export function handleModalAction(actionElement, callbacks = {}) {
       break;
     case 'perform-prestige':
       handlePrestige(gameApi, closeModal);
+      break;
+    case 'buy-prestige-upgrade':
+      gameApi?.buyPrestigeUpgrade?.(actionElement.dataset.upgrade);
+      break;
+    case 'random-event-choice':
+      handleRandomEventChoice(gameApi, actionElement, closeModal);
       break;
     default:
       break;

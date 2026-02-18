@@ -2210,3 +2210,257 @@ body {
     padding-right: 4px;
     width: 100%;
 }
+/* ===== Technical Debt Tycoon Layout ===== */
+#right-panel {
+    width: 340px;
+    min-width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+    background: var(--bg-secondary);
+    border-left: 1px solid var(--border);
+    overflow-y: auto;
+}
+
+.right-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 10px;
+}
+
+.right-card h3 {
+    font-size: 13px;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+}
+
+#bug-counter {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+.debt-meter {
+    width: 100%;
+    height: 12px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.debt-fill {
+    height: 100%;
+    width: 0;
+    transition: width 0.25s ease;
+    background: linear-gradient(90deg, #24c26a, #e5cf2f, #c93838);
+}
+
+#tech-debt-meter.debt-green .debt-fill {
+    box-shadow: 0 0 8px rgba(36, 194, 106, 0.6);
+}
+
+#tech-debt-meter.debt-yellow .debt-fill {
+    box-shadow: 0 0 10px rgba(229, 207, 47, 0.7);
+}
+
+#tech-debt-meter.debt-red .debt-fill {
+    box-shadow: 0 0 10px rgba(201, 56, 56, 0.7);
+}
+
+#tech-debt-meter.debt-critical .debt-fill {
+    animation: debt-blink 0.55s infinite;
+}
+
+@keyframes debt-blink {
+    0% { opacity: 1; }
+    50% { opacity: 0.4; }
+    100% { opacity: 1; }
+}
+
+.event-log {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-height: 240px;
+    overflow-y: auto;
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+.event-log-item {
+    padding: 4px 6px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.event-log-item.event-danger {
+    border-left: 2px solid #d14444;
+}
+
+.event-log-item.event-success {
+    border-left: 2px solid #2cad6b;
+}
+
+.event-log-empty {
+    color: var(--text-muted);
+    padding: 4px 2px;
+}
+
+#boardroom-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.boardroom-summary {
+    padding: 6px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.boardroom-items {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.boardroom-item {
+    display: grid;
+    grid-template-columns: 30px 1fr auto;
+    gap: 8px;
+    align-items: center;
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.boardroom-item.affordable {
+    border-color: rgba(154, 195, 28, 0.45);
+}
+
+.boardroom-item.bought {
+    opacity: 0.65;
+}
+
+.boardroom-icon {
+    font-size: 20px;
+    text-align: center;
+}
+
+.boardroom-name {
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.boardroom-desc {
+    font-size: 10px;
+    color: var(--text-muted);
+}
+
+.boardroom-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+}
+
+.boardroom-cost {
+    font-size: 11px;
+    color: var(--orange-light);
+}
+
+.boardroom-buy-btn {
+    padding: 4px 8px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    cursor: pointer;
+    font-size: 11px;
+}
+
+.boardroom-buy-btn:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
+.crash-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1500;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(25, 0, 0, 0.72);
+    backdrop-filter: blur(2px);
+}
+
+.crash-overlay.active {
+    display: flex;
+}
+
+.crash-card {
+    background: #1f1111;
+    border: 1px solid rgba(220, 70, 70, 0.6);
+    border-radius: 14px;
+    padding: 20px;
+    min-width: 280px;
+    text-align: center;
+    box-shadow: 0 0 24px rgba(255, 60, 60, 0.4);
+}
+
+.crash-card h2 {
+    color: #ff7a7a;
+    margin-bottom: 10px;
+}
+
+.crash-card p {
+    color: #f3dede;
+    margin-bottom: 12px;
+}
+
+@media (max-width: 1200px) {
+    #left-panel {
+        width: 360px;
+        min-width: 320px;
+    }
+
+    #right-panel {
+        width: 300px;
+        min-width: 260px;
+    }
+}
+
+@media (max-width: 900px) {
+    #game-container {
+        flex-direction: column;
+        height: calc(100dvh - 56px);
+        overflow-y: auto;
+    }
+
+    #center-panel {
+        min-height: 42vh;
+        height: auto;
+    }
+
+    #left-panel,
+    #right-panel {
+        width: 100%;
+        min-width: 0;
+        height: auto;
+        border: none;
+    }
+
+    #right-panel {
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+    }
+}

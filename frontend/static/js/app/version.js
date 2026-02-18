@@ -1,4 +1,4 @@
-export const GAME_VERSION = "v0.2.4";
+export const GAME_VERSION = "v0.2.8";
 
 export function getVersion() {
     return GAME_VERSION;
@@ -18,3 +18,4 @@ export function displayVersion() {
     versionEl.innerText = GAME_VERSION;
     document.body.appendChild(versionEl);
 }
+

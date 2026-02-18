@@ -8,5 +8,8 @@ def test_contract_save_schema(page: Page):
 
     page.evaluate('window.__SUMMAN_TEST_API__.reset()')
     page.evaluate("window.__SUMMAN_TEST_API__.dispatch({ type: 'SAVE' })")
-    version = page.evaluate("JSON.parse(localStorage.getItem('summan_clicker_save')).version")
-    assert version == 2
+
+    saved = page.evaluate("JSON.parse(localStorage.getItem('summan_clicker_save'))")
+    assert saved['version'] == 2
+    assert 'encoding' in saved
+    assert 'payload' in saved

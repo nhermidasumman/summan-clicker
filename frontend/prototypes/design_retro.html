@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Summan Mainframe - Prototype 2</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #050505;
+            --crt-green: #39ff14;
+            --crt-green-dim: #1e5c12;
+            --crt-amber: #ffb000;
+            --scanline: rgba(0, 0, 0, 0.5);
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--crt-green);
+            font-family: 'VT323', monospace;
+            height: 100vh;
+            overflow: hidden;
+            text-transform: uppercase;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: auto 1fr;
+            gap: 20px;
+            text-shadow: 0 0 5px var(--crt-green-dim);
+        }
+
+        /* CRT Effect Overlay */
+        body::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 2;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
+
+        .header {
+            grid-column: 1 / -1;
+            border: 2px solid var(--crt-green);
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 0 15px var(--crt-green-dim);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 32px;
+            letter-spacing: 4px;
+        }
+
+        .sys-status {
+            animation: blink 2s infinite;
+        }
+
+        @keyframes blink {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        .module {
+            border: 1px solid var(--crt-green-dim);
+            padding: 15px;
+            position: relative;
+            background: rgba(0, 20, 0, 0.3);
+        }
+
+        .module-title {
+            position: absolute;
+            top: -12px;
+            left: 10px;
+            background: var(--bg-color);
+            padding: 0 10px;
+            color: var(--crt-green);
+            font-size: 20px;
+        }
+
+        /* Access Terminal (Left) */
+        .terminal-input {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .big-counter {
+            font-size: 64px;
+            text-shadow: 0 0 10px var(--crt-green);
+            margin-bottom: 20px;
+        }
+
+        .execute-btn {
+            background: transparent;
+            border: 2px solid var(--crt-green);
+            color: var(--crt-green);
+            font-family: inherit;
+            font-size: 24px;
+            padding: 15px 40px;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 0 10px var(--crt-green-dim);
+        }
+
+        .execute-btn:hover {
+            background: var(--crt-green);
+            color: black;
+            box-shadow: 0 0 20px var(--crt-green);
+        }
+
+        .execute-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Scroll Log (Center) */
+        .log-container {
+            height: 100%;
+            overflow-y: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            font-size: 18px;
+            line-height: 1.2;
+        }
+
+        .log-entry {
+            margin-bottom: 5px;
+            opacity: 0.8;
+        }
+
+        .log-entry::before {
+            content: "> ";
+            color: var(--crt-amber);
+        }
+
+        /* Grid Map (Center Visual) */
+        .grid-map {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 2px;
+            opacity: 0.5;
+        }
+
+        .grid-cell {
+            height: 20px;
+            border: 1px solid var(--crt-green-dim);
+        }
+
+        .grid-cell.active {
+            background: var(--crt-green);
+        }
+
+        /* Inventory (Right) */
+        .inventory-list {
+            margin-top: 20px;
+        }
+
+        .inv-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px dashed var(--crt-green-dim);
+            cursor: pointer;
+        }
+
+        .inv-item:hover {
+            background: rgba(57, 255, 20, 0.1);
+        }
+
+        .inv-cost {
+            color: var(--crt-amber);
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <h1>SUMMAN.OS <span style="font-size:16px">v9.0.1</span></h1>
+        <div class="sys-status">SYSTEM ONLINE</div>
+    </header>
+
+    <!-- LEFT -->
+    <div class="module">
+        <span class="module-title">CMD_INPUT</span>
+        <div class="terminal-input">
+            <div style="font-size:20px; color:var(--crt-amber)">DATA_PACKETS:</div>
+            <div class="big-counter">8,402</div>
+            <button class="execute-btn">EXECUTE [ENTER]</button>
+            <div style="margin-top:40px; border: 1px solid var(--crt-green-dim); width: 80%; padding: 5px;">
+                WARNING: DEBT_LEVEL_CRITICAL
+                <div style="width: 100%; height: 10px; background: #333; margin-top: 5px;">
+                    <div style="width: 70%; height: 100%; background: red;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CENTER -->
+    <div class="module">
+        <span class="module-title">SYS_LOG & VISUAL</span>
+        <div class="log-container">
+            <div class="grid-map">
+                <div class="grid-cell active"></div>
+                <div class="grid-cell active"></div>
+                <div class="grid-cell"></div>
+                <div class="grid-cell"></div>
+                <div class="grid-cell"></div>
+                <div class="grid-cell active"></div>
+                <div class="grid-cell"></div>
+                <div class="grid-cell"></div>
+                <div class="grid-cell"></div>
+                <div class="grid-cell"></div>
+            </div>
+            <div style="flex:1"></div>
+            <div class="log-entry">Connection established to server node_01</div>
+            <div class="log-entry">Packet transfer complete (120ms)</div>
+            <div class="log-entry" style="color:var(--crt-amber)">Warning: Garbage collection needed</div>
+            <div class="log-entry">User "Admin" initiated protocol X</div>
+            <div class="log-entry">Compiling assets...</div>
+        </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="module">
+        <span class="module-title">ALLOCATION</span>
+        <div style="display:flex; gap:10px; margin-bottom:15px;">
+            <button style="background:var(--crt-green); color:black; border:none; padding:2px 8px;">NODES</button>
+            <button
+                style="background:transparent; color:var(--crt-green-dim); border:1px solid; padding:2px 8px;">SOFTW</button>
+            <button
+                style="background:transparent; color:var(--crt-green-dim); border:1px solid; padding:2px 8px;">NET</button>
+        </div>
+
+        <div class="inventory-list">
+            <div class="inv-item">
+                <span>[01] SCRIPT_KIDDIE</span>
+                <span class="inv-cost">150 PKT</span>
+            </div>
+            <div class="inv-item">
+                <span>[04] DEV_WORKSTATION</span>
+                <span class="inv-cost">1.2K PKT</span>
+            </div>
+            <div class="inv-item">
+                <span>[00] CLOUD_CLUSTER</span>
+                <span class="inv-cost">15K PKT</span>
+            </div>
+            <div class="inv-item">
+                <span>[02] QUANTUM_LINK</span>
+                <span class="inv-cost">999K PKT</span>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

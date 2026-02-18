@@ -11,20 +11,21 @@ export function calculateClickValue(state) {
   let clickAdd = 0;
   let dpsPercent = 0;
 
-  for (const upId of state.upgrades || []) {
-    const up = Upgrades.getById(upId);
-    if (!up) continue;
-    const eff = up.effect;
-    if (eff.type === 'click_mult') clickMult *= eff.value;
-    if (eff.type === 'click_add') clickAdd += eff.value;
-    if (eff.type === 'click_dps_percent') dpsPercent += eff.value;
+  for (const upgradeId of state.upgrades || []) {
+    const upgrade = Upgrades.getById(upgradeId);
+    if (!upgrade) continue;
+    const effect = upgrade.effect || {};
+
+    if (effect.type === 'click_mult') clickMult *= effect.value || 1;
+    if (effect.type === 'click_add') clickAdd += effect.value || 0;
+    if (effect.type === 'click_dps_percent') dpsPercent += effect.value || 0;
   }
 
   const prestigeEffects = Prestige.getAggregatedEffects(state.prestigeUpgrades || []);
   clickMult *= prestigeEffects.clickMult;
 
-  for (const eff of state.activeEffects || []) {
-    if (eff.type === 'click_mult') clickMult *= eff.multiplier;
+  for (const effect of state.activeEffects || []) {
+    if (effect.type === 'click_mult') clickMult *= effect.multiplier;
   }
 
   return (baseClick + clickAdd) * clickMult + ((state.dps || 0) * dpsPercent);
@@ -33,71 +34,70 @@ export function calculateClickValue(state) {
 export function recalculateDps(state) {
   if (!state) return 0;
 
-  let totalDps = 0;
-  const buildingMults = {};
-
-  for (const def of Buildings.getAll()) {
-    buildingMults[def.id] = 1;
-  }
-
-  for (const upId of state.upgrades || []) {
-    const up = Upgrades.getById(upId);
-    if (!up) continue;
-    const eff = up.effect;
-
-    if (eff.type === 'building_mult' && eff.target) {
-      buildingMults[eff.target] = (buildingMults[eff.target] || 1) * eff.value;
-    }
-
-    if (eff.type === 'synergy' && eff.targets) {
-      for (const target of eff.targets) {
-        buildingMults[target] = (buildingMults[target] || 1) * eff.value;
-      }
-    }
-
-    if (eff.type === 'synergy_per' && eff.target && eff.per) {
-      const perCount = state.buildings?.[eff.per] || 0;
-      if (perCount > 0) {
-        buildingMults[eff.target] = (buildingMults[eff.target] || 1) * (1 + eff.value * perCount);
-      }
-    }
-  }
-
-  state.buildingMultipliers = buildingMults;
-
-  for (const def of Buildings.getAll()) {
-    const owned = state.buildings?.[def.id] || 0;
-    if (owned > 0) {
-      totalDps += def.baseDps * owned * (buildingMults[def.id] || 1);
-    }
-  }
-
+  let theoreticalDps = 0;
+  const buildingMultipliers = {};
+  let autoClicksPerSecond = 0;
   let globalMult = 1;
-  for (const upId of state.upgrades || []) {
-    const up = Upgrades.getById(upId);
-    if (!up) continue;
-    if (up.effect.type === 'global_mult') {
-      globalMult *= up.effect.value;
-    }
-  }
-  totalDps *= globalMult;
 
-  totalDps *= Achievements.getTotalBonus(state.achievements || []);
+  for (const building of Buildings.getAll()) {
+    buildingMultipliers[building.id] = 1;
+  }
+
+  for (const upgradeId of state.upgrades || []) {
+    const upgrade = Upgrades.getById(upgradeId);
+    if (!upgrade) continue;
+    const effect = upgrade.effect || {};
+
+    if (effect.type === 'building_mult' && effect.target) {
+      buildingMultipliers[effect.target] = (buildingMultipliers[effect.target] || 1) * (effect.value || 1);
+    }
+
+    if (effect.type === 'synergy' && effect.targets) {
+      for (const target of effect.targets) {
+        buildingMultipliers[target] = (buildingMultipliers[target] || 1) * (effect.value || 1);
+      }
+    }
+
+    if (effect.type === 'synergy_per' && effect.target && effect.per) {
+      const count = state.buildings?.[effect.per] || 0;
+      if (count > 0) {
+        buildingMultipliers[effect.target] = (buildingMultipliers[effect.target] || 1) * (1 + ((effect.value || 0) * count));
+      }
+    }
+
+    if (effect.type === 'global_mult') globalMult *= (effect.value || 1);
+    if (effect.type === 'auto_click') autoClicksPerSecond += (effect.value || 0);
+  }
+
+  for (const building of Buildings.getAll()) {
+    const owned = state.buildings?.[building.id] || 0;
+    if (owned <= 0) continue;
+    theoreticalDps += building.baseDps * owned * (buildingMultipliers[building.id] || 1);
+  }
+
+  theoreticalDps *= globalMult;
+  theoreticalDps *= Achievements.getTotalBonus(state.achievements || []);
 
   const prestigeEffects = Prestige.getAggregatedEffects(state.prestigeUpgrades || []);
-  totalDps *= prestigeEffects.productionMult;
+  theoreticalDps *= prestigeEffects.productionMult;
+  theoreticalDps *= Prestige.getBaseMultiplier(state.totalInnovationEarned || 0);
+  theoreticalDps *= Number(state.tempProductionMultiplier || 1);
 
-  const totalInnovMult = Prestige.getBaseMultiplier(state.totalInnovationEarned || 0);
-  totalDps *= totalInnovMult;
-
-  for (const eff of state.activeEffects || []) {
-    if (eff.type === 'production_mult') {
-      totalDps *= eff.multiplier;
+  for (const effect of state.activeEffects || []) {
+    if (effect.type === 'production_mult') {
+      theoreticalDps *= effect.multiplier;
     }
   }
 
-  state.dps = totalDps;
-  return totalDps;
+  const efficiency = Math.max(0, Math.min(1, Number(state.efficiency ?? 1)));
+  const crashActive = Boolean(state.crash?.active);
+  const effectiveDps = crashActive ? 0 : (theoreticalDps * efficiency);
+
+  state.buildingMultipliers = buildingMultipliers;
+  state.autoClicksPerSecond = autoClicksPerSecond;
+  state.theoreticalDps = theoreticalDps;
+  state.dps = effectiveDps;
+  return effectiveDps;
 }
 
 export function getBuildingDiscount(state) {
@@ -105,3 +105,4 @@ export function getBuildingDiscount(state) {
   const effects = Prestige.getAggregatedEffects(state.prestigeUpgrades);
   return effects.buildingDiscount;
 }
+

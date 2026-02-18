@@ -10,7 +10,16 @@ def wait_ready(page: Page):
 def test_feature_buy_modes(page: Page):
     wait_ready(page)
     page.evaluate('window.__SUMMAN_TEST_API__.reset()')
-    page.evaluate("window.__SUMMAN_TEST_API__.setState({ dataPoints: 1000000, stats: { ...window.__SUMMAN_TEST_API__.getState().stats, totalDataEarned: 1000000, totalDataAllTime: 1000000 } })")
+    page.evaluate("""
+        window.__SUMMAN_TEST_API__.setState({
+            dataPoints: 1_000_000_000,
+            stats: {
+                ...window.__SUMMAN_TEST_API__.getState().stats,
+                totalDataEarned: 1_000_000_000,
+                totalDataAllTime: 1_000_000_000
+            }
+        })
+    """)
 
     page.click('button[data-amount="1"]')
     page.click('.building-item[data-building="intern"]')
@@ -20,15 +29,33 @@ def test_feature_buy_modes(page: Page):
     page.click('.building-item[data-building="intern"]')
     c2 = page.evaluate("window.__SUMMAN_TEST_API__.getState().buildings['intern'] || 0")
 
-    assert c2 >= c1 + 10
+    page.click('button[data-amount="100"]')
+    page.click('.building-item[data-building="intern"]')
+    c3 = page.evaluate("window.__SUMMAN_TEST_API__.getState().buildings['intern'] || 0")
+
+    assert c1 == 1
+    assert c2 == 11
+    assert c3 == 111
 
 
 def test_feature_buy_max(page: Page):
     wait_ready(page)
     page.evaluate('window.__SUMMAN_TEST_API__.reset()')
-    page.evaluate("window.__SUMMAN_TEST_API__.setState({ dataPoints: 5000, stats: { ...window.__SUMMAN_TEST_API__.getState().stats, totalDataEarned: 5000, totalDataAllTime: 5000 } })")
+    page.evaluate("""
+        window.__SUMMAN_TEST_API__.setState({
+            dataPoints: 5000,
+            stats: {
+                ...window.__SUMMAN_TEST_API__.getState().stats,
+                totalDataEarned: 5000,
+                totalDataAllTime: 5000
+            }
+        })
+    """)
 
     page.click('button[data-amount="-1"]')
     page.click('.building-item[data-building="intern"]')
-    owned = page.evaluate("window.__SUMMAN_TEST_API__.getState().buildings['intern'] || 0")
+    state = page.evaluate('window.__SUMMAN_TEST_API__.getState()')
+
+    owned = state['buildings'].get('intern') or 0
     assert owned > 0
+    assert state['dataPoints'] >= 0

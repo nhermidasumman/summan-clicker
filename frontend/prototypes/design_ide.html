@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Summan Dev IDE - Prototype 1</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-ide: #1e1e1e;
+            --bg-sidebar: #252526;
+            --bg-editor: #1e1e1e;
+            --bg-activity-bar: #333333;
+            --border-color: #3e3e3e;
+            --accent: #007acc;
+            --text-primary: #cccccc;
+            --text-secondary: #858585;
+            --keyword: #569cd6;
+            --string: #ce9178;
+            --function: #dcdcaa;
+            --number: #b5cea8;
+            --comment: #6a9955;
+            --error: #f48771;
+            --warning: #cca700;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-ide);
+            color: var(--text-primary);
+            font-family: 'Fira Code', monospace;
+            height: 100vh;
+            overflow: hidden;
+            display: grid;
+            grid-template-rows: 30px 1fr 22px; /* Titlebar, Main, Statusbar */
+        }
+
+        /* Title Bar */
+        .title-bar {
+            background: var(--bg-activity-bar);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 10px;
+            font-size: 12px;
+            user-select: none;
+        }
+        .window-controls { display: flex; gap: 8px; }
+        .control { width: 12px; height: 12px; border-radius: 50%; }
+        .close { background: #ff5f56; }
+        .minimize { background: #ffbd2e; }
+        .maximize { background: #27c93f; }
+
+        /* Main Grid */
+        .main-container {
+            display: grid;
+            grid-template-columns: 280px 1fr 300px; /* Workspace, Environment, Management */
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* Common Panel Styling */
+        .panel {
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+        }
+        .panel:last-child { border-right: none; }
+        .panel-header {
+            padding: 10px 15px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-sidebar); 
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        /* Left Panel: Explorer / Workspace */
+        #workspace-panel { background: var(--bg-sidebar); }
+        
+        .production-display {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .loc-counter {
+            font-size: 32px;
+            color: var(--function);
+            margin-bottom: 5px;
+        }
+        .loc-label { font-size: 12px; color: var(--text-secondary); }
+
+        .commit-section {
+            padding: 30px 20px;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .commit-btn {
+            background: linear-gradient(180deg, #3c3c3c 0%, #252526 100%);
+            border: 1px solid #000;
+            box-shadow: 0 4px 0 #111;
+            color: var(--text-primary);
+            font-family: 'Fira Code', monospace;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+        .commit-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 0 0 #111;
+        }
+        .commit-btn:hover { color: var(--keyword); border-color: var(--keyword); }
+
+        .doom-bar-container {
+            padding: 15px 20px;
+        }
+        .doom-meter {
+            height: 6px;
+            background: #111;
+            border-radius: 3px;
+            overflow: hidden;
+            position: relative;
+        }
+        .doom-fill {
+            height: 100%;
+            width: 30%;
+            background: linear-gradient(90deg, var(--comment), var(--warning), var(--error));
+            box-shadow: 0 0 10px var(--error);
+        }
+
+        /* Center Panel: Editor / Environment */
+        #environment-panel { background: var(--bg-editor); position: relative; }
+        
+        .tabs-header {
+            display: flex;
+            background: var(--bg-activity-bar);
+            height: 35px;
+        }
+        .tab {
+            padding: 0 15px;
+            display: flex;
+            align-items: center;
+            font-size: 13px;
+            background: var(--bg-editor);
+            color: var(--text-primary);
+            border-right: 1px solid var(--border-color);
+            border-top: 2px solid var(--accent);
+        }
+        .tab.inactive {
+            background: #2d2d2d;
+            border-top: 2px solid transparent;
+            color: var(--text-secondary);
+        }
+
+        .code-area {
+            padding: 20px;
+            color: var(--text-primary);
+            opacity: 0.8;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .line-num { color: var(--text-secondary); margin-right: 15px; display: inline-block; width: 30px; text-align: right; user-select: none;}
+        
+        .office-canvas {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 300px;
+            border-top: 1px solid var(--border-color);
+            background: #111;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 20px;
+        }
+        .pixel-desk {
+            width: 60px;
+            height: 40px;
+            background: #444;
+            margin: 0 10px;
+            position: relative;
+        }
+        .pixel-char {
+            width: 20px;
+            height: 30px;
+            background: var(--keyword);
+            position: absolute;
+            bottom: 40px;
+            left: 20px;
+        }
+
+        /* Right Panel: Management */
+        #management-panel { background: var(--bg-sidebar); }
+        
+        .nav-tabs {
+            display: flex;
+            padding: 10px;
+            gap: 5px;
+        }
+        .nav-btn {
+            flex: 1;
+            padding: 8px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-family: inherit;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-btn.active { color: var(--text-primary); border-bottom-color: var(--accent); }
+
+        .bulk-buy {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            padding: 5px 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .buy-opt { 
+            padding: 2px 8px; 
+            font-size: 11px; 
+            background: #333; 
+            border-radius: 2px; 
+            cursor: pointer; 
+        }
+        .buy-opt.active { background: var(--accent); color: white; }
+
+        .items-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+        .item-row {
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+        .item-row:hover { background: #2a2d2e; }
+        .item-icon { color: var(--keyword); font-size: 18px; }
+        .item-details { flex: 1; }
+        .item-name { font-size: 13px; color: var(--text-primary); display: block; }
+        .item-cost { font-size: 11px; color: var(--comment); }
+        
+        /* Status Bar */
+        .status-bar {
+            background: var(--accent);
+            color: white;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            font-size: 11px;
+            justify-content: space-between;
+        }
+        .status-left, .status-right { display: flex; gap: 15px; }
+
+    </style>
+</head>
+<body>
+    <div class="title-bar">
+        <div class="window-controls">
+            <div class="control close"></div>
+            <div class="control minimize"></div>
+            <div class="control maximize"></div>
+        </div>
+        <div>Summan IDE - workspace</div>
+        <div></div>
+    </div>
+
+    <div class="main-container">
+        <!-- LEFT: WORKSPACE -->
+        <aside id="workspace-panel" class="panel">
+            <div class="panel-header">EXPLORER: PRODUCTION</div>
+            
+            <div class="production-display">
+                <div class="loc-counter">4,291</div>
+                <div class="loc-label">LINES OF CODE</div>
+            </div>
+
+            <div class="commit-section">
+                <button class="commit-btn">git commit -m "WIP"</button>
+            </div>
+
+            <div class="doom-bar-container">
+                <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:4px;">
+                    <span style="color:var(--text-secondary)">TECHNICAL DEBT</span>
+                    <span style="color:var(--error)">34%</span>
+                </div>
+                <div class="doom-meter">
+                    <div class="doom-fill"></div>
+                </div>
+            </div>
+
+            <div style="padding: 20px; font-size: 12px;">
+                <div style="color:var(--text-secondary); margin-bottom:5px;">OPEN EDITORS</div>
+                <div style="padding:2px 0; color:var(--text-primary)">
+                    <span style="color:var(--keyword)">JS</span> main.js
+                </div>
+                <div style="padding:2px 0">
+                    <span style="color:var(--string)">CSS</span> style.css
+                </div>
+            </div>
+        </aside>
+
+        <!-- CENTER: ENVIRONMENT -->
+        <main id="environment-panel" class="panel">
+            <div class="tabs-header">
+                <div class="tab">main.js</div>
+                <div class="tab inactive">style.css</div>
+                <div class="tab inactive">index.html</div>
+            </div>
+            
+            <div class="code-area">
+                <div><span class="line-num">1</span><span class="keyword">import</span> { <span class="function">Game</span> } <span class="keyword">from</span> <span class="string">'./core'</span>;</div>
+                <div><span class="line-num">2</span></div>
+                <div><span class="line-num">3</span><span class="comment">// Summan Auto-Generated Code</span></div>
+                <div><span class="line-num">4</span><span class="keyword">function</span> <span class="function">generateValue</span>() {</div>
+                <div><span class="line-num">5</span>    <span class="keyword">const</span> innovation = <span class="number">100</span>;</div>
+                <div><span class="line-num">6</span>    <span class="keyword">return</span> innovation * <span class="number">Math</span>.random();</div>
+                <div><span class="line-num">7</span>}</div>
+                <div><span class="line-num">8</span></div>
+                <div><span class="line-num">9</span><span class="function">console</span>.log(<span class="string">"System operational..."</span>);</div>
+                <div><span class="line-num">10</span><span class="function">console</span>.log(<span class="string">"Hiring Jr. Dev..."</span>);</div>
+                <div><span class="line-num">11</span><span class="function">console</span>.log(<span class="string">"Refactoring legacy module..."</span>);</div>
+            </div>
+
+            <div class="office-canvas">
+                <!-- Simple Visualize -->
+                <div class="pixel-desk"><div class="pixel-char"></div></div>
+                <div class="pixel-desk" style="opacity:0.3"><div class="pixel-char"></div></div>
+                <div class="pixel-desk" style="opacity:0.3"><div class="pixel-char"></div></div>
+            </div>
+        </main>
+
+        <!-- RIGHT: MANAGEMENT -->
+        <aside id="management-panel" class="panel">
+            <div class="panel-header">EXTENSIONS & INFRA</div>
+            
+            <div class="nav-tabs">
+                <button class="nav-btn active">INFRA</button>
+                <button class="nav-btn">UPGRADES</button>
+                <button class="nav-btn">R&D</button>
+            </div>
+            
+            <div class="bulk-buy">
+                <span class="buy-opt active">x1</span>
+                <span class="buy-opt">x10</span>
+                <span class="buy-opt">x100</span>
+                <span class="buy-opt">MAX</span>
+            </div>
+
+            <div class="items-list">
+                <div class="item-row">
+                    <div class="item-icon">{}</div>
+                    <div class="item-details">
+                        <span class="item-name">Junior Dev</span>
+                        <span class="item-cost">15 Datos</span>
+                    </div>
+                    <div style="font-size:16px; font-weight:bold;">12</div>
+                </div>
+                <div class="item-row">
+                    <div class="item-icon">☕</div>
+                    <div class="item-details">
+                        <span class="item-name">Coffee Machine</span>
+                        <span class="item-cost">100 Datos</span>
+                    </div>
+                    <div style="font-size:16px; font-weight:bold;">4</div>
+                </div>
+                <div class="item-row">
+                    <div class="item-icon">🖥️</div>
+                    <div class="item-details">
+                        <span class="item-name">Dev Server</span>
+                        <span class="item-cost">1.1k Datos</span>
+                    </div>
+                    <div style="font-size:16px; font-weight:bold;">1</div>
+                </div>
+                <div class="item-row" style="opacity:0.5">
+                    <div class="item-icon">☁️</div>
+                    <div class="item-details">
+                        <span class="item-name">Cloud Instance</span>
+                        <span class="item-cost">12k Datos</span>
+                    </div>
+                    <div>0</div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <footer class="status-bar">
+        <div class="status-left">
+            <span>master*</span>
+            <span>0 errors, 24 warnings</span>
+        </div>
+        <div class="status-right">
+            <span>Ln 43, Col 12</span>
+            <span>UTF-8</span>
+            <span>JavaScript</span>
+        </div>
+    </footer>
+</body>
+</html>
+

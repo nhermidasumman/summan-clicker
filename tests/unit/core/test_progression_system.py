@@ -1,4 +1,4 @@
-﻿from playwright.sync_api import Page
+from playwright.sync_api import Page
 
 
 def wait_ready(page: Page):
@@ -26,7 +26,7 @@ def test_progression_buy_building_exact_cost(page: Page):
 
     state = page.evaluate('window.__SUMMAN_TEST_API__.getState()')
     assert (state['buildings'].get('intern') or 0) == 1
-    assert int(state['dataPoints']) == 80
+    assert int(state['dataPoints']) == 85
 
 
 def test_progression_buy_max_respects_bulk_math(page: Page):
@@ -47,5 +47,5 @@ def test_progression_buy_max_respects_bulk_math(page: Page):
     page.evaluate("window.__SUMMAN_TEST_API__.dispatch({ type: 'BUY_BUILDING', buildingId: 'intern' })")
 
     state = page.evaluate('window.__SUMMAN_TEST_API__.getState()')
-    assert (state['buildings'].get('intern') or 0) == 3
-    assert int(state['dataPoints']) == 28
+    assert (state['buildings'].get('intern') or 0) == 4
+    assert int(state['dataPoints']) == 25

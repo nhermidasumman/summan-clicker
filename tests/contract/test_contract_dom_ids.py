@@ -12,6 +12,13 @@ def test_contract_dom_ids(page: Page):
         '#effects-bar',
         '#modal-overlay',
         '#toast-container',
+        '#tech-debt-meter',
+        '#bug-counter',
+        '#btn-refactor',
+        '#event-log',
+        '#crash-overlay',
+        '#reboot-button',
+        '#right-panel',
     ]
     for selector in required:
         assert page.locator(selector).count() == 1

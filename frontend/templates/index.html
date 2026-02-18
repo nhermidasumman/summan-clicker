@@ -5,12 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="description" content="Summan Data Clicker - Un juego incremental de Transformación Digital">
+    <meta name="description" content="Summan Data Clicker - Incremental game">
     <title>Summan Data Clicker</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/style.css">
     <link rel="manifest" href="/static/manifest.json">
     <link rel="apple-touch-icon" href="https://www.summan.com/wp-content/uploads/2023/03/logo-summan.webp">
@@ -19,27 +18,23 @@
 </head>
 
 <body>
-    <!-- ==================== TOP BAR ==================== -->
     <header id="top-bar">
         <div class="top-bar-left">
             <img src="https://www.summan.com/wp-content/uploads/2023/03/logo-summan.webp" alt="Summan" class="logo">
             <div class="title-group">
                 <h1 id="game-title">Summan Data Clicker</h1>
-                <span id="game-subtitle">Transformación Digital, un dato a la vez</span>
+                <span id="game-subtitle">Transformacion Digital, un dato a la vez</span>
             </div>
         </div>
         <div class="top-bar-right">
-            <div id="innovation-display" class="innovation-badge" style="display: none;">🌟 0</div>
-            <button id="btn-prestige" class="top-btn prestige-btn-top" style="display: none;"
-                title="Innovar">🚀</button>
-            <button id="btn-stats" class="top-btn" title="Estadísticas">📊</button>
-            <button id="btn-settings" class="top-btn" title="Configuración">⚙️</button>
+            <div id="innovation-display" class="innovation-badge" style="display: none;">0</div>
+            <button id="btn-prestige" class="top-btn prestige-btn-top" style="display: none;" title="Prestige">IPO</button>
+            <button id="btn-stats" class="top-btn" title="Estadisticas">Stats</button>
+            <button id="btn-settings" class="top-btn" title="Configuracion">Cfg</button>
         </div>
     </header>
 
-    <!-- ==================== MAIN GAME AREA ==================== -->
     <main id="game-container">
-        <!-- Left Panel: Buildings -->
         <aside id="left-panel">
             <div class="panel-header">
                 <div class="tab-bar">
@@ -48,7 +43,6 @@
                 </div>
             </div>
 
-            <!-- Upgrades Bar (Cookie Clicker style) -->
             <div id="upgrades-container" class="upgrades-container">
                 <div class="section-title">Mejoras Disponibles</div>
                 <div id="upgrades-bar" class="upgrades-bar">
@@ -56,7 +50,6 @@
                 </div>
             </div>
 
-            <!-- Buy Amount Selector -->
             <div id="buy-amount-bar" class="buy-amount-bar">
                 <button class="buy-amount-btn active" data-amount="1">x1</button>
                 <button class="buy-amount-btn" data-amount="10">x10</button>
@@ -64,7 +57,6 @@
                 <button class="buy-amount-btn" data-amount="-1">Max</button>
             </div>
 
-            <!-- Tab Content -->
             <div id="panel-buildings" class="tab-content active">
                 <div id="buildings-list" class="items-list"></div>
             </div>
@@ -73,9 +65,7 @@
             </div>
         </aside>
 
-        <!-- Center: Click Area -->
         <section id="center-panel">
-            <!-- Data Counter -->
             <div id="data-display">
                 <div id="data-counter" class="data-counter">0</div>
                 <div class="data-label">Data Points</div>
@@ -86,10 +76,8 @@
                 </div>
             </div>
 
-            <!-- Active Effects -->
             <div id="effects-bar" class="effects-bar"></div>
 
-            <!-- Click Target -->
             <div id="click-area">
                 <div id="click-target">
                     <div id="click-orb" class="click-orb">
@@ -108,17 +96,11 @@
                                     </filter>
                                 </defs>
                                 <circle cx="50" cy="50" r="44" fill="url(#orbGrad)" filter="url(#orbShadow)" />
-                                <!-- Data circuit lines -->
-                                <path d="M30 50 L40 40 L60 40 L70 50" stroke="#b8e65a" stroke-width="1.5" fill="none"
-                                    opacity="0.6" />
-                                <path d="M30 55 L45 55 L50 45 L55 55 L70 55" stroke="#d4f07a" stroke-width="1"
-                                    fill="none" opacity="0.4" />
-                                <path d="M35 60 L50 60 L55 50 L65 60" stroke="#b8e65a" stroke-width="1" fill="none"
-                                    opacity="0.3" />
-                                <!-- Center dot -->
+                                <path d="M30 50 L40 40 L60 40 L70 50" stroke="#b8e65a" stroke-width="1.5" fill="none" opacity="0.6" />
+                                <path d="M30 55 L45 55 L50 45 L55 55 L70 55" stroke="#d4f07a" stroke-width="1" fill="none" opacity="0.4" />
+                                <path d="M35 60 L50 60 L55 50 L65 60" stroke="#b8e65a" stroke-width="1" fill="none" opacity="0.3" />
                                 <circle cx="50" cy="50" r="4" fill="#d4f07a" opacity="0.8" />
                                 <circle cx="50" cy="50" r="2" fill="#fff" opacity="0.9" />
-                                <!-- Highlight -->
                                 <ellipse cx="42" cy="38" rx="10" ry="6" fill="#fff" opacity="0.15" />
                             </svg>
                         </div>
@@ -126,38 +108,58 @@
                     <div id="particle-container" class="particle-container"></div>
                 </div>
 
-                <!-- Golden Data (hidden by default) -->
-                <div id="golden-data" class="golden-data">💠</div>
-
-                <!-- Bug Report (hidden by default) -->
-                <div id="bug-report" class="bug-report">🐛</div>
+                <div id="golden-data" class="golden-data">G</div>
+                <div id="bug-report" class="bug-report">B</div>
             </div>
 
-            <!-- Bottom info -->
             <div id="center-footer">
-                <div id="save-indicator" class="save-indicator">💾 Auto-saved</div>
+                <div id="save-indicator" class="save-indicator">Auto-saved</div>
             </div>
         </section>
+
+        <aside id="right-panel">
+            <div class="right-card">
+                <h3>Technical Debt</h3>
+                <div id="bug-counter">Bugs: 0 | Eficiencia: 100%</div>
+                <div id="tech-debt-meter" class="debt-meter debt-green">
+                    <div id="tech-debt-fill" class="debt-fill"></div>
+                </div>
+                <button id="btn-refactor" class="settings-btn">Refactor</button>
+            </div>
+
+            <div class="right-card">
+                <h3 id="event-log-title">Bitacora</h3>
+                <ul id="event-log" class="event-log"></ul>
+            </div>
+
+            <div class="right-card boardroom-card">
+                <h3 id="boardroom-title">Boardroom</h3>
+                <div id="boardroom-list"></div>
+            </div>
+        </aside>
     </main>
 
-    <!-- ==================== MODAL OVERLAY ==================== -->
+    <div id="crash-overlay" class="crash-overlay" aria-hidden="true">
+        <div class="crash-card">
+            <h2 id="crash-title">SYSTEM CRASH</h2>
+            <p>Downtime: <span id="crash-countdown">0.0s</span></p>
+            <button id="reboot-button" class="settings-btn">Reboot</button>
+        </div>
+    </div>
+
     <div id="modal-overlay" class="modal-overlay">
         <div class="modal-container">
             <div class="modal-header">
                 <h2 id="modal-title"></h2>
-                <button id="modal-close" class="modal-close-btn">✕</button>
+                <button id="modal-close" class="modal-close-btn">x</button>
             </div>
             <div id="modal-body" class="modal-body"></div>
         </div>
     </div>
 
-    <!-- ==================== ACHIEVEMENT POPUP ==================== -->
     <div id="achievement-popup" class="achievement-popup"></div>
-
-    <!-- ==================== TOAST CONTAINER ==================== -->
     <div id="toast-container" class="toast-container"></div>
 
-        <!-- ==================== SCRIPTS ==================== -->
     <script type="module" src="/static/js/app/main.js"></script>
 </body>
 
